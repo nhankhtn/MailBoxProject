@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Random;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 
@@ -25,27 +26,26 @@ public class sendHandler {
 		}
 	}
 
-	public void sendEmail(String from, String to[], int m, String subject, String msg, String cc[], int n, String bcc[],
-			int p, String pathFiles[], int q) {
+	public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc, ArrayList<String> pathFiles) {
 		String boundary = randomBound(24);
 
 		writer.println("EHLO [127.0.0.1]");
 		writer.println("MAIL FROM:<" + from + ">");
-		for (int i = 0; i < m; i++)
-			writer.println("RCPT TO:<" + to[i] + ">");
-		for (int i = 0; i < n; i++)
-			writer.println("RCPT TO:<" + cc[i] + ">");
-		for (int i = 0; i < p; i++)
-			writer.println("RCPT TO:<" + bcc[i] + ">");
+		for (String string : to) 
+			writer.println("RCPT TO:<" + string + ">");
+		for (String string : cc) 
+			writer.println("RCPT TO:<" + string + ">");
+		for (String string : bcc) 
+			writer.println("RCPT TO:<" + string + ">");
 
 		writer.println("DATA");
 		writer.println("Content-Type: multipart/mixed; boundary=\"------------" + boundary + "\""); // Khi có gửi file
 		writer.println("Message-ID: " + System.currentTimeMillis());
 		writer.println("Date: " + currentTimeFormat());
 		writer.println("Content-Language: vi-x-KieuCu.[Chuan]");
-		writer.println("To: " + unionEmail(to, m));
-		if (n != 0)
-			writer.println("Cc: " + unionEmail(cc, n));
+		writer.println("To: " + unionEmail(to));
+		if (cc.size() != 0)
+			writer.println("Cc: " + unionEmail(cc));
 
 		writer.println("From: " + from);
 		writer.println("Subject: " + subject);
@@ -61,9 +61,8 @@ public class sendHandler {
 		writer.println(msg);
 
 		// Send file
-		for (int j = 0; j < q; j++) {
-			attachFile(writer, pathFiles[j], boundary);
-		}
+		for (String pathFile : pathFiles) 
+			attachFile(writer, pathFile,  boundary);
 
 		// Footer
 		writer.println("--------------" + boundary + "--");
@@ -110,11 +109,11 @@ public class sendHandler {
 		return sdf.format(date);
 	}
 
-	public String unionEmail(String emails[], int n) {
+	public String unionEmail(ArrayList<String> emails) {
 		String res = "";
-		for (int i = 0; i < n; i++) {
-			res += emails[i];
-			if (i != n - 1)
+		for (int i = 0; i < emails.size(); i++) {
+			res += emails.get(i);
+			if (i != emails.size() - 1)
 				res += ", ";
 		}
 		return res;
@@ -162,12 +161,7 @@ public class sendHandler {
 	}
 
 	public static void main(String[] args) {
-		
-		// String from[] = { "test@gmail.com" };
-		// String cc[] = { "abc@gmail.com", "def@gmail.com" };
-		// String bcc[] = new String[3];
-		// String pathFiles[] = { "D:\\test\\test.txt" };
-		// tc.sendEmail("test@gmail.com", from, 1, "Test 18/11", "Hom nay la ngay\n 18/11", cc, 0, bcc, 0, pathFiles, 1);
+		sendHandler sendHandler = new sendHandler("127.0.0.1", 2225);
 		
 
 	}

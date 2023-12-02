@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
+
 
 public class receiveHandler {
     private Socket socket;
@@ -22,33 +22,24 @@ public class receiveHandler {
 
     private BufferedReader in;
     private PrintWriter writer;
-    private int sizeMails; // Số mail tối đa có thể lưu trữ
-    private int numMailRead; // Số mail đã được tải về 
-    private mail[] mails;
+    private ArrayList<mail> mails;
 
     receiveHandler(String mailServer, int port, String user, String password) {
         try {
             this.user = user;
             this.password = password;
-            numMailRead = 0;
-            sizeMails = 100;
-
 
             socket = new Socket(mailServer, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
-            mails = new mail[sizeMails];
+            mails = new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public int getNumMails() {
-        return numMailRead;
-    }
-
-    public mail[] getMails(){
+    public ArrayList<mail> getMails(){
         return mails;
     }
 
@@ -65,9 +56,9 @@ public class receiveHandler {
 
         //Tải các mail mới trên mailbox server 
         while(true){
-            mail mail = readMail(numMailRead+1);
+            mail mail = readMail(mails.size()+1);
             if(mail.checkEmpty()) break;
-            mails[numMailRead++]=mail;
+            mails.add(mail);
         }
 
         // Gửi lệnh QUIT để đóng kết nối
@@ -79,20 +70,17 @@ public class receiveHandler {
     mail readMail(int index) {
         writer.println("RETR " + index);
         String from = "", subject = "", content = "", time = "", boundary;
-        int maxReceiver = 100;
-        String to[] = new String[maxReceiver], cc[] = new String[maxReceiver];
-        int numTo = 0, numCc = 0;
-
-        int numberFiles = 0;
-        String codeFiles[] = new String[100];// Stores the Base64 code of the file
-        String nameFiles[] = new String[100];
+        ArrayList<String> to = new ArrayList<>();
+        ArrayList<String> cc = new ArrayList<>();
+        ArrayList<String> files = new ArrayList<>();
+        ArrayList<String> codeFiles = new ArrayList<>();
 
         try {
             String line;
 
             String response = in.readLine();
             if (response.equals("-ERR Invalid message number")) {
-                return new mail(from, to, numTo, cc, numCc, subject, content, time, numberFiles, nameFiles);
+                return new mail(from, to, cc, subject, content, time, files);
             } else if (response.startsWith("+OK")) {
                 line = in.readLine();
                 boundary = "--" + line.substring(line.indexOf("boundary") + 10, line.indexOf("boundary") + 46);
@@ -105,7 +93,7 @@ public class receiveHandler {
                         int begin = 4;
                         int end;
                         while ((end = line.indexOf("@gmail.com", begin)) != -1) {
-                            to[numTo++] = line.substring(begin, end + 10);
+                            to.add(line.substring(begin, end + 10));
                             begin = end + 12;
                         }
                     } else if (line.startsWith("From: ")) {
@@ -116,7 +104,7 @@ public class receiveHandler {
                         int begin = 4;
                         int end;
                         while ((end = line.indexOf("@gmail.com", begin)) != -1) {
-                            cc[numCc++] = line.substring(begin, end + 10);
+                            cc.add(line.substring(begin, end + 10));
                             begin = end + 12;
                         }
                     }
@@ -133,28 +121,27 @@ public class receiveHandler {
 
                 // Read the file if there is one
                 while (!line.equals(boundary + "--")) {
-                    codeFiles[numberFiles] = "";
+                    String codeFile = "";
                     while (!(line = in.readLine()).equals("boundary") && !line.equals(boundary + "--")) {
                         if (line.startsWith("Content-Type")) {
-                            nameFiles[numberFiles] = line.substring(line.indexOf("name") + 6, line.length() - 1);
+                            files.add(line.substring(line.indexOf("name") + 6, line.length() - 1));
                             continue;
                         } else if (line.startsWith("Content"))
                             continue;
 
-                        codeFiles[numberFiles] += line;
+                        codeFile += line;
                     }
-                    codeFiles[numberFiles] = codeFiles[numberFiles].trim();
+                    codeFile = codeFile.trim();
 
-                    saveFile(codeFiles[numberFiles], nameFiles[numberFiles]);
-
-                    numberFiles++;
+                    saveFile(codeFile, files.get(files.size()-1));
+                    codeFiles.add(codeFile);
                 }
                 in.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new mail(from, to, numTo, cc, numCc, subject, content, time, numberFiles, nameFiles);
+        return new mail(from, to,  cc,  subject, content, time, files);
     }
 
     void saveFile(String codeFile, String nameFile) {
@@ -213,6 +200,5 @@ public class receiveHandler {
     public static void main(String[] args) {
         receiveHandler pop = new receiveHandler("127.0.0.1", 3335, "abc@gmail.com", "1234");
         pop.cloneEmail();
-        pop.print();
     }
 }

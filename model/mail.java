@@ -1,45 +1,35 @@
 package MailBox.model;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.util.ArrayList;
 
 /*
 * Defines an email to display
 */
+
 public class mail {
     String from;
-    String to[],cc[];
-    int numTo = 0, numCc = 0;
+    ArrayList<String> to, cc, files;
     String subject, content, time;
-    int numFiles; 
-    String[] nameFiles;
     boolean status; // true nếu mail chưa được đọc
+    ArrayList<String> typeMail;
 
-    public mail(String from, String[] to, int numTo, String[] cc, int numCc, String subject, String content, String time, int numFiles, String[] nameFiles) {
+    public mail(String from, ArrayList<String> to, ArrayList<String> cc, String subject, String content, String time, ArrayList<String> files) {
         this.from = from;
-        this.to = new String[numTo];
-        System.arraycopy(to, 0, this.to, 0, numTo);
-        this.numTo = numTo;
-        this.cc = new String[numCc];
-        System.arraycopy(cc, 0, this.cc, 0, numCc);
-        this.numCc = numCc;
+        this.to = new ArrayList<>();
+        this.to.addAll(to);
+        this.cc = new ArrayList<>();
+        this.cc.addAll(cc);
         this.subject = subject;
         this.content = content;
         this.time = time;
-        this.numFiles = numFiles;
-        this.nameFiles = new String[numFiles];
-        System.arraycopy(nameFiles, 0, this.nameFiles, 0, numFiles);
+        this.files = new ArrayList<>();
+        this.files.addAll(files);
         status = true;
+        this.setTypeMail();
     }
     
     public boolean checkEmpty() {
         return this.from.equals("");
-    }
-
-    @Override
-    public String toString() {
-        return "mail [from=" + from + ", to=" + Arrays.toString(to) + ", subject=" + subject + ", content=" + content
-                + ", numFiles=" + numFiles + ", nameFiles=" + Arrays.toString(nameFiles) + "]";
     }
 
     public boolean getStatus() {
@@ -49,4 +39,22 @@ public class mail {
     public void setStatus(boolean status) {
         this.status = status;
     }
+
+    public ArrayList<String> getTypeMail() {
+        return typeMail;
+    }
+
+    public void setTypeMail() {
+        typeMail = new ArrayList<>();
+        if(from.endsWith("@testing.com")) 
+            typeMail.add("project");
+        if(subject.equals("urgent") || subject.equals("ASAP")) 
+            typeMail.add("important");
+        if(content.indexOf("report" ) != -1 || content.indexOf("meeting" ) != -1)
+            typeMail.add("work");
+        if(subject.indexOf("virus") != -1 || subject.indexOf("hack") != -1 || subject.indexOf("crack") != -1
+        || content.indexOf("virus") != -1 || content.indexOf("hack") != -1 || content.indexOf("crack") != -1) 
+           typeMail.add("spam");
+    }
+    
 }

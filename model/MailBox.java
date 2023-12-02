@@ -8,25 +8,28 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 
 
 public class MailBox {
-    mail[] mails;
-    int totalMails;
-
+    ArrayList<mail> mails;
+    
     String user, password, mailServer;
     int SMTPport, POPport, autoload;
 
     receiveHandler receiveHandler;
     sendHandler sendHandler;
 
+    autoLoadMail autoLoadMail;
+
     MailBox(){
         this.configure();
         this.sendHandler = new sendHandler(mailServer, SMTPport);
         this.receiveHandler = new receiveHandler(mailServer, POPport, user, password);
  
-
+        autoLoadMail = new autoLoadMail(receiveHandler, autoload);
+        autoLoadMail.start();
     }
 
     public void configure() {
@@ -57,11 +60,11 @@ public class MailBox {
 
     public void cloneEmail() {
         receiveHandler.cloneEmail();
+        mails = receiveHandler.getMails();
     }
 
-    public void sendEmail(String from, String to[], int m, String subject, String msg, String cc[], int n, String bcc[],
-			int p, String pathFiles[], int q){
-        sendHandler.sendEmail(from, to, m, subject, msg, cc, n, bcc, p, pathFiles, q);
+    public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc, ArrayList<String> pathFiles){
+        sendHandler.sendEmail(from, to, subject, msg, cc, bcc, pathFiles);
     }
 
     public static void main(String[] args) {
