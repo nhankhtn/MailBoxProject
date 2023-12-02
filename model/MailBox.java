@@ -1,4 +1,4 @@
-package MailBoxProject.model;
+package MailBox.model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,19 +18,22 @@ public class MailBox {
     String user, password, mailServer;
     int SMTPport, POPport, autoload;
 
+    receiveHandler receiveHandler;
+    sendHandler sendHandler;
 
     MailBox(){
         this.configure();
-
+        this.sendHandler = new sendHandler(mailServer, SMTPport);
+        this.receiveHandler = new receiveHandler(mailServer, POPport, user, password);
  
 
     }
 
-    void configure() {
+    public void configure() {
         try {
             //Lấy đường dẫn tương đối của file config.xml 
             Path currentPath = Paths.get("");
-            Path pathToC = currentPath.resolveSibling("MailBoxProject").resolve("config.xml");
+            Path pathToC = currentPath.resolveSibling("MailBox").resolve("config.xml");
             File xmlFile = new File(pathToC.toAbsolutePath().toString());
         
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -51,6 +54,16 @@ public class MailBox {
             e.printStackTrace();
         }
     }
+
+    public void cloneEmail() {
+        receiveHandler.cloneEmail();
+    }
+
+    public void sendEmail(String from, String to[], int m, String subject, String msg, String cc[], int n, String bcc[],
+			int p, String pathFiles[], int q){
+        sendHandler.sendEmail(from, to, m, subject, msg, cc, n, bcc, p, pathFiles, q);
+    }
+
     public static void main(String[] args) {
        MailBox mb = new MailBox();
        

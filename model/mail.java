@@ -1,5 +1,6 @@
-package MailBoxProject.model;
+package MailBox.model;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /*
@@ -12,6 +13,7 @@ public class mail {
     String subject, content, time;
     int numFiles; 
     String[] nameFiles;
+    boolean status; // true nếu mail chưa được đọc
 
     public mail(String from, String[] to, int numTo, String[] cc, int numCc, String subject, String content, String time, int numFiles, String[] nameFiles) {
         this.from = from;
@@ -27,5 +29,24 @@ public class mail {
         this.numFiles = numFiles;
         this.nameFiles = new String[numFiles];
         System.arraycopy(nameFiles, 0, this.nameFiles, 0, numFiles);
+        status = true;
+    }
+    
+    public boolean checkEmpty() {
+        return this.from.equals("");
+    }
+
+    @Override
+    public String toString() {
+        return "mail [from=" + from + ", to=" + Arrays.toString(to) + ", subject=" + subject + ", content=" + content
+                + ", numFiles=" + numFiles + ", nameFiles=" + Arrays.toString(nameFiles) + "]";
+    }
+
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }

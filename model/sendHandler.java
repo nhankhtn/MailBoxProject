@@ -1,4 +1,4 @@
-package MailBoxProject.model;
+package MailBox.model;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -14,11 +14,10 @@ import java.util.Calendar;
 public class sendHandler {
 	PrintWriter writer;
 	Socket socket;
-	int port = 2225;
 
-	public sendHandler() {
+	public sendHandler(String mailServer, int port) {
 		try {
-			socket = new Socket("localhost", port);
+			socket = new Socket(mailServer, port);
 			writer = new PrintWriter(
 					socket.getOutputStream(), true);
 		} catch (Exception e) {
@@ -163,12 +162,12 @@ public class sendHandler {
 	}
 
 	public static void main(String[] args) {
-		sendHandler tc = new sendHandler();
-		String from[] = { "test@gmail.com" };
-		String cc[] = { "abc@gmail.com", "def@gmail.com" };
-		String bcc[] = new String[3];
-		String pathFiles[] = { "D:\\test\\test.txt" };
-		tc.sendEmail("test@gmail.com", from, 1, "Test 18/11", "Hom nay la ngay\n 18/11", cc, 0, bcc, 0, pathFiles, 1);
+		
+		// String from[] = { "test@gmail.com" };
+		// String cc[] = { "abc@gmail.com", "def@gmail.com" };
+		// String bcc[] = new String[3];
+		// String pathFiles[] = { "D:\\test\\test.txt" };
+		// tc.sendEmail("test@gmail.com", from, 1, "Test 18/11", "Hom nay la ngay\n 18/11", cc, 0, bcc, 0, pathFiles, 1);
 		
 
 	}
