@@ -1,22 +1,20 @@
 package MailBox.model;
 
-import javax.swing.plaf.SliderUI;
-
 public class autoLoadMail extends Thread {
-    receiveHandler receiveHandler;
+    MailBox mailBox;
     int autoLoad;
 
-    autoLoadMail(receiveHandler receiveHandler, int autoLoad) {
-        this.receiveHandler = receiveHandler;
+    autoLoadMail(MailBox mailBox, int autoLoad) {
+        this.mailBox = mailBox;
         this.autoLoad = autoLoad;
     }
 
     @Override
     public void run() {
         while(true) {
-            this.receiveHandler.cloneEmail();
+            this.mailBox.cloneEmail(); 
             try {
-                Thread.sleep(autoLoad*60);
+                Thread.sleep(autoLoad*60*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

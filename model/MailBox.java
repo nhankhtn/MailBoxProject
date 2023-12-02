@@ -22,13 +22,13 @@ public class MailBox {
     sendHandler sendHandler;
 
     autoLoadMail autoLoadMail;
+    String pathSaveFile;
+    boolean autoSaveFile;
 
     MailBox(){
         this.configure();
-        this.sendHandler = new sendHandler(mailServer, SMTPport);
-        this.receiveHandler = new receiveHandler(mailServer, POPport, user, password);
  
-        autoLoadMail = new autoLoadMail(receiveHandler, autoload);
+        autoLoadMail = new autoLoadMail(this, autoload);
         autoLoadMail.start();
     }
 
@@ -43,6 +43,7 @@ public class MailBox {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
             doc.getDocumentElement().normalize();
+            // Đọc thông tin cơ bản
             NodeList nodeList = doc.getElementsByTagName("General");
            
             Element element = (Element) nodeList.item(0);
@@ -53,22 +54,37 @@ public class MailBox {
             POPport = Integer.parseInt(element.getElementsByTagName("POP3").item(0).getTextContent());
             autoload = Integer.parseInt(element.getElementsByTagName("Autoload").item(0).getTextContent());
 
+            //Đọc các cấu hình cho mailbox
+            nodeList = doc.getElementsByTagName("Configuration");
+            element = (Element) nodeList.item(0);
+            pathSaveFile = element.getElementsByTagName("PathDefault").item(0).getTextContent();
+            autoSaveFile = Boolean.parseBoolean(element.getElementsByTagName("AutoSave").item(0).getTextContent());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void cloneEmail() {
-        receiveHandler.cloneEmail();
+        this.receiveHandler = new receiveHandler(mailServer, POPport, user, password);
+        receiveHandler.cloneEmail(pathSaveFile, autoSaveFile);
         mails = receiveHandler.getMails();
     }
 
-    public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc, ArrayList<String> pathFiles){
-        sendHandler.sendEmail(from, to, subject, msg, cc, bcc, pathFiles);
+    public void sendEmail(ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc, ArrayList<String> pathFiles){
+        this.sendHandler = new sendHandler(mailServer, SMTPport);
+        sendHandler.sendEmail(user, to, subject, msg, cc, bcc, pathFiles);
     }
 
     public static void main(String[] args) {
        MailBox mb = new MailBox();
-       
+       ArrayList<String> to = new ArrayList<String>();
+       to.add("nndnhan@gmail.com");
+       ArrayList<String> cc=new ArrayList<String>();
+       ArrayList<String> bcc=new ArrayList<String>();
+       ArrayList<String> pathFiles = new ArrayList<String>();
+       pathFiles.add("D:\\test\\test.txt");
+       mb.sendEmail(to, "hello", "abc def", cc, bcc,pathFiles);
+       mb.cloneEmail();
+ 
     }
 }

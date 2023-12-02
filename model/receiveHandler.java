@@ -36,14 +36,13 @@ public class receiveHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public ArrayList<mail> getMails(){
         return mails;
     }
 
-    public void cloneEmail() {
+    public void cloneEmail(String pathSaveFile, boolean autoSaveFile) {
         writer.println("CAPA");
         readData();
         writer.println("USER " + user);
@@ -56,7 +55,7 @@ public class receiveHandler {
 
         //Tải các mail mới trên mailbox server 
         while(true){
-            mail mail = readMail(mails.size()+1);
+            mail mail = readMail(mails.size()+1, pathSaveFile, autoSaveFile);
             if(mail.checkEmpty()) break;
             mails.add(mail);
         }
@@ -67,7 +66,7 @@ public class receiveHandler {
     }
 
     //Trả về thông tin mail nếu tồn tại mail, ngược lại trả về mail rỗng 
-    mail readMail(int index) {
+    mail readMail(int index, String pathSaveFile, boolean autoSaveFile) {
         writer.println("RETR " + index);
         String from = "", subject = "", content = "", time = "", boundary;
         ArrayList<String> to = new ArrayList<>();
@@ -132,8 +131,8 @@ public class receiveHandler {
                         codeFile += line;
                     }
                     codeFile = codeFile.trim();
-
-                    saveFile(codeFile, files.get(files.size()-1));
+     
+                    if(autoSaveFile)  saveFile(codeFile, files.get(files.size()-1),pathSaveFile);
                     codeFiles.add(codeFile);
                 }
                 in.readLine();
@@ -144,24 +143,24 @@ public class receiveHandler {
         return new mail(from, to,  cc,  subject, content, time, files);
     }
 
-    void saveFile(String codeFile, String nameFile) {
+    void saveFile(String codeFile, String nameFile, String pathSaveFile) {
         byte[] decodedBytes = Base64.getDecoder().decode(codeFile);
 
-        String directoryPath = "D:\\mailClient"; // Đường dẫn mặc định để lưu file
-        File directory = new File(directoryPath);
+         // Đường dẫn mặc định để lưu file
+        File directory = new File(pathSaveFile);
 
         // Kiểm tra xem thư mục đã tồn tại chưa, nếu chưa thì tạo thư mục đó
         if (!directory.exists())
             directory.mkdir();
 
-        Path filePath = Paths.get(directoryPath, nameFile);
+        Path filePath = Paths.get(pathSaveFile, nameFile);
         if(Files.exists(filePath)){
              int i = 1;
              // Tạo tên file mới nếu đã tồn tại file đó trong máy 
              do {
                 String newName = nameFile.substring(0, nameFile.indexOf(".")) + " (" + i + ")." 
                 + nameFile.substring(nameFile.indexOf(".")+1,nameFile.length());
-                filePath = Paths.get(directoryPath, newName);
+                filePath = Paths.get(pathSaveFile, newName);
              } while(Files.exists(filePath));
         }
 
