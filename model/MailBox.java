@@ -82,7 +82,7 @@ public class MailBox {
        ArrayList<String> cc=new ArrayList<String>();
        ArrayList<String> bcc=new ArrayList<String>();
        ArrayList<String> pathFiles = new ArrayList<String>();
-       pathFiles.add("D:\\test\\test.txt");
+       pathFiles.add("D:\\test\\test.pdf");
        mb.sendEmail(to, "hello", "abc def", cc, bcc,pathFiles);
        mb.cloneEmail();
  

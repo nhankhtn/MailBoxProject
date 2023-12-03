@@ -15,10 +15,12 @@ import java.util.Calendar;
 public class sendHandler {
 	PrintWriter writer;
 	Socket socket;
+	final int SOCKET_TIMEOUT = 15*1000;
 
 	public sendHandler(String mailServer, int port) {
 		try {
 			socket = new Socket(mailServer, port);
+			socket.setSoTimeout(SOCKET_TIMEOUT);
 			writer = new PrintWriter(
 					socket.getOutputStream(), true);
 		} catch (Exception e) {
@@ -92,8 +94,6 @@ public class sendHandler {
 					line = contentEncode.substring(i * sizeLine, (i + 1) * sizeLine);
 
 				writer.println(line);
-				writer.flush();
-				System.out.println(); // fix lỗi không gửi được file
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -135,29 +135,43 @@ public class sendHandler {
 
 	public String typeOfFile(String fileName) {
 		String suffix = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-		String res;
 		switch (suffix) {
 			case "txt":
-				res = "text/plain";
-				break;
+			    return "text/plain";
 			case "pdf":
-				res = "application/pdf";
-				break;
+				return"application/pdf";
 			case "docx":
-				res = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-				break;
+				return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 			case "ipg":
-				res = "image/ipeg";
-				break;
+				return "image/ipeg";
 			case "zip":
-				res = "application/x-zip-compressed";
-				break;
+				return "application/x-zip-compressed";
 			case "xlsx":
-				res = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+			    return  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+			case "xls":
+                return "application/vnd.ms-excel";
+            case ".xlsx":
+                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            case "doc":
+                return "application/msword";
+            case "ppt":
+                return "application/vnd.ms-powerpoint";
+            case "pptx":
+                return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+            case "png":
+                return "image/png";
+            case "gif":
+                return "image/gif";
+            case "bmp":
+                return "image/bmp";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "rar":
+                return "application/vnd.rar";
 			default:
-				res = "";
+			    return "";
 		}
-		return res;
 	}
 
 	public static void main(String[] args) {
