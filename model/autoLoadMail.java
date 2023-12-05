@@ -11,13 +11,13 @@ public class autoLoadMail extends Thread {
 
     @Override
     public void run() {
-        while(true) {
-            this.mailBox.cloneEmail(); 
+        while(true) { 
             try {
-                Thread.sleep(autoLoad*60*1000);
+                Thread.sleep(autoLoad*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            this.mailBox.cloneEmail();
         }
     }
     

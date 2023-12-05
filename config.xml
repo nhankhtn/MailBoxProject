@@ -9,7 +9,7 @@
     <Autoload>10</Autoload>
   </General>
   <Configuration>
-    <PathDefault>D:\\mailbox</PathDefault>
+    <PathDefault>D:\\Mailbox</PathDefault>
     <AutoSave>true</AutoSave>
   </Configuration>
 </Settings>

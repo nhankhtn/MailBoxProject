@@ -16,22 +16,26 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-public class newMail extends JDialog {
-    JPanel contentPanel;
+import MailBox.controller.handleNewMail;
+
+public class newMailUI extends JDialog {
+    private JPanel contentPanel;
     private JTextField fromTextField;
 	private JTextField ccTextField;
 	private JTextField toTextField;
 	private JTextField bccTextField;
 	private JTextField subjectTextField;
     private JTextField fileTextField;
+	private JTextArea textArea;
+    private handleNewMail handleNewMail;
 
-    newMail() {
-        this.display();
-		showSend(true);
+    public newMailUI() {
+		handleNewMail = new handleNewMail(this);
+		this.display();
     }
 
     public void display() {
-        setBounds(100, 100, 569, 384);
+        setBounds(600, 200, 569, 384);
 		getContentPane().setLayout(new BorderLayout());
         ImageIcon icon = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\send.png");
 		this.setIconImage(icon.getImage());
@@ -49,6 +53,8 @@ public class newMail extends JDialog {
 			
 			JButton attachBtn = new JButton("");
 			attachBtn.setBounds(508, 10, 16, 47);
+			attachBtn.setActionCommand("Attach");
+			attachBtn.addActionListener(handleNewMail);
 			header.add(attachBtn);
 
             ImageIcon attachImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\attach.png");
@@ -111,7 +117,7 @@ public class newMail extends JDialog {
 			contentPanel.add(body);
 			body.setLayout(new BorderLayout(0, 0));
 			
-			JTextArea textArea = new JTextArea();
+			textArea = new JTextArea();
 			
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			body.add(scrollPane);
@@ -138,18 +144,16 @@ public class newMail extends JDialog {
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+
 			JButton send = new JButton("Send");
+			send.addActionListener(handleNewMail);
 			buttonPane.add(send);
+
 			JButton cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(handleNewMail);
 			buttonPane.add(cancelButton);
 		}
     }
 
-    public void showSend(boolean visible) {
-        this.setVisible(visible);
-    }
 	
-	public static void main(String[] args) {
-		new newMail();
-	}
 }
