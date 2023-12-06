@@ -36,7 +36,6 @@ public class newMailUI extends JDialog {
 	private JTextArea textArea;
 	private handleNewMail handleNewMail;
 	private MailBox mailBox;
-	private boolean sendFile; // Kiểm tra xem có gửi kèm file không 
 	private ArrayList<String> pathFiles;
 
 	public newMailUI() {
@@ -44,13 +43,8 @@ public class newMailUI extends JDialog {
 		mailBox = new MailBox();
   
 		pathFiles = new ArrayList<>();
-		sendFile = false;
 
 		this.display();
-	}
-
-	public void setSendFile(boolean sendFile) {
-		this.sendFile = sendFile;
 	}
 
 	public void setPathFiles(ArrayList<String> pathFiles) {
@@ -60,7 +54,7 @@ public class newMailUI extends JDialog {
 	public void display() {
 		setBounds(600, 200, 569, 384);
 		getContentPane().setLayout(new BorderLayout());
-		ImageIcon icon = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\send.png");
+		ImageIcon icon = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\send.png");
 		this.setIconImage(icon.getImage());
 		this.setTitle("Send mail");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -80,7 +74,7 @@ public class newMailUI extends JDialog {
 			attachBtn.addActionListener(handleNewMail);
 			header.add(attachBtn);
 
-			ImageIcon attachImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\attach.png");
+			ImageIcon attachImg = new ImageIcon(mailBox.getPathCurrent() +"D\\view\\Image\\attach.png");
 			Image attachImg1 = attachImg.getImage().getScaledInstance(16, 47, Image.SCALE_SMOOTH);
 			attachBtn.setIcon(new ImageIcon(attachImg1));
 
@@ -198,7 +192,13 @@ public class newMailUI extends JDialog {
 
 		ArrayList<String> pathFiles = this.pathFiles;
 	
-		this.mailBox.sendMail(recipients, subject, content, recipientCC, recipientBCC, pathFiles);
+		try {
+			this.mailBox.sendMail(recipients, subject, content, recipientCC, recipientBCC, pathFiles);
+		} catch (Exception e) {
+			// Hiển thị lỗi ở đây
+			e.printStackTrace();
+		}
+
 	}
 
 	public ArrayList<String> getPathFilesSelected() {

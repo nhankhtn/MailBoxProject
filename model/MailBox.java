@@ -4,13 +4,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import MailBox.view.newMailUI;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -26,13 +22,11 @@ public class MailBox {
     private int SMTPport, POPport, autoLoad;
     private receiveHandler receiveHandler;
     private sendHandler sendHandler;
-    private autoLoadMail autoLoadMail;
     private String pathSaveFile;
     private boolean autoSaveFile;
 
     public MailBox() {
         this.configure();
-
     }
 
     public String getUser() {
@@ -77,6 +71,9 @@ public class MailBox {
         }
     }
 
+    /*
+     * Get mail from the server and save it to file
+     */
     public void cloneEmail() {
         this.receiveHandler = new receiveHandler(mailServer, POPport, user, password, totalMail());
         receiveHandler.cloneEmail(pathSaveFile, autoSaveFile);
@@ -85,28 +82,33 @@ public class MailBox {
     }
 
     public void sendMail(ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc,
-            ArrayList<String> pathFiles) {
+            ArrayList<String> pathFiles) throws Exception {
         this.sendHandler = new sendHandler(mailServer, SMTPport);
         sendHandler.sendEmail(user, to, subject, msg, cc, bcc, pathFiles);
     }
 
+    /*
+     * Get the current path of the project
+     */
     public String getPathCurrent() {
-        return Paths.get("").toAbsolutePath().toString();
+        return Paths.get("").toAbsolutePath().toString()+"\\MailBox";
     }
 
     public void saveMailsToFile(ArrayList<mail> newMails) {
-        for (int i = 0; i < newMails.size(); i++)
-            newMails.get(i).saveMailToFile(getPathCurrent() + "\\MailBox\\storeMail\\mails.xml");
+       for (mail mail : newMails) 
+           mail.saveMailToFile(getPathCurrent() + "\\storeMail\\mails.xml");
     }
 
-    // Đếm số lượng mail có trong file mails.xml
+    /*
+     * Count the number of mails in the mails.xml file
+     */
     public int totalMail() {
         int countMails = 0;
         try {
             // Tạo đối tượng Document
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(getPathCurrent() + "\\MailBox\\storeMail\\mails.xml");
+            Document doc = dBuilder.parse(getPathCurrent() + "\\storeMail\\mails.xml");
 
             // Lấy phần tử cha (trong trường hợp này là Mail)
             Element mailElement = (Element) doc.getElementsByTagName("Mails").item(0);
@@ -126,10 +128,13 @@ public class MailBox {
         return countMails;
     }
 
+    /*
+     * Change the read mail status back to the file
+     */
     public void setStatus(String idMail, boolean status) {
         try {
             // Đọc tệp XML
-            File xmlFile = new File(getPathCurrent() + "\\MailBox\\storeMail\\mails.xml");
+            File xmlFile = new File(getPathCurrent() + "\\storeMail\\mails.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
@@ -160,11 +165,14 @@ public class MailBox {
         }
     }
 
+    /*
+     * Get mail list from mails.xml file
+     */
     public ArrayList<mail> getMails() {
         ArrayList<mail> mails = new ArrayList<mail>();
         // Đọc tệp XML
         try {
-            File xmlFile = new File(getPathCurrent() + "\\MailBox\\storeMail\\mails.xml");
+            File xmlFile = new File(getPathCurrent() + "\\storeMail\\mails.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);

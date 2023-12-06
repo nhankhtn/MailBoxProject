@@ -15,29 +15,27 @@ import java.util.Calendar;
 public class sendHandler {
 	PrintWriter writer;
 	Socket socket;
-	final int SOCKET_TIMEOUT = 15*1000;
+	final int SOCKET_TIMEOUT = 15 * 1000;
 
-	public sendHandler(String mailServer, int port) {
-		try {
-			socket = new Socket(mailServer, port);
-			socket.setSoTimeout(SOCKET_TIMEOUT);
-			writer = new PrintWriter(
-					socket.getOutputStream(), true);
-		} catch (Exception e) {
-			System.out.println("Can't connect to server");
-		}
+	public sendHandler(String mailServer, int port) throws Exception {
+		socket = new Socket(mailServer, port);
+		socket.setSoTimeout(SOCKET_TIMEOUT);
+		writer = new PrintWriter(
+				socket.getOutputStream(), true);
+		throw new Exception("Can't connect to server");
 	}
 
-	public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc, ArrayList<String> pathFiles) {
+	public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc,
+			ArrayList<String> bcc, ArrayList<String> pathFiles) {
 		String boundary = randomBound(24);
 
 		writer.println("EHLO [127.0.0.1]");
 		writer.println("MAIL FROM:<" + from + ">");
-		for (String string : to) 
+		for (String string : to)
 			writer.println("RCPT TO:<" + string + ">");
-		for (String string : cc) 
+		for (String string : cc)
 			writer.println("RCPT TO:<" + string + ">");
-		for (String string : bcc) 
+		for (String string : bcc)
 			writer.println("RCPT TO:<" + string + ">");
 
 		writer.println("DATA");
@@ -63,8 +61,8 @@ public class sendHandler {
 		writer.println(msg);
 
 		// Send file
-		for (String pathFile : pathFiles) 
-			attachFile(writer, pathFile,  boundary);
+		for (String pathFile : pathFiles)
+			attachFile(writer, pathFile, boundary);
 
 		// Footer
 		writer.println("--------------" + boundary + "--");
@@ -84,10 +82,11 @@ public class sendHandler {
 			byte[] fileBytes = Files.readAllBytes(f.toPath());
 			String contentEncode = Base64.getEncoder().encodeToString(fileBytes);
 			int sizeLine = 72;
-			int len = contentEncode.length() / sizeLine;
+			int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
+
 			String line;
 
-			for (int i = 0; i <= len; i++) {
+			for (int i = 0; i < len; i++) {
 				if (i == len)
 					line = contentEncode.substring(i * sizeLine, contentEncode.length());
 				else
@@ -137,9 +136,9 @@ public class sendHandler {
 		String suffix = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
 		switch (suffix) {
 			case "txt":
-			    return "text/plain";
+				return "text/plain";
 			case "pdf":
-				return"application/pdf";
+				return "application/pdf";
 			case "docx":
 				return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 			case "ipg":
@@ -147,32 +146,31 @@ public class sendHandler {
 			case "zip":
 				return "application/x-zip-compressed";
 			case "xlsx":
-			    return  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+				return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 			case "xls":
-                return "application/vnd.ms-excel";
-            case ".xlsx":
-                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            case "doc":
-                return "application/msword";
-            case "ppt":
-                return "application/vnd.ms-powerpoint";
-            case "pptx":
-                return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-            case "png":
-                return "image/png";
-            case "gif":
-                return "image/gif";
-            case "bmp":
-                return "image/bmp";
-            case "jpg":
-            case "jpeg":
-                return "image/jpeg";
-            case "rar":
-                return "application/vnd.rar";
+				return "application/vnd.ms-excel";
+			case ".xlsx":
+				return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+			case "doc":
+				return "application/msword";
+			case "ppt":
+				return "application/vnd.ms-powerpoint";
+			case "pptx":
+				return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+			case "png":
+				return "image/png";
+			case "gif":
+				return "image/gif";
+			case "bmp":
+				return "image/bmp";
+			case "jpg":
+			case "jpeg":
+				return "image/jpeg";
+			case "rar":
+				return "application/vnd.rar";
 			default:
-			    return "";
+				return "";
 		}
 	}
-
 
 }

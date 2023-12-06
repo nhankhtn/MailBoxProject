@@ -47,7 +47,6 @@ public class home extends JFrame {
 
 	public home() {
 		handleHome = new handleHome(this);
-		this.display(); // Displays the mailbox interface
 
 		mailBox = new MailBox();
 		listMailsCurrent = this.mailBox.getMails(); //Loads list mail from the file mails.xml
@@ -55,7 +54,8 @@ public class home extends JFrame {
 		autoLoadMail = new autoLoadMail(this); //Automatically download emails and display them on the interface
 		autoLoadMail.start();
 
-
+		this.display(); // Displays the mailbox interface
+		
 		editorPane = new JEditorPane[maxPanel];
 		for (int i = 0; i < 9; i++) {
 			editorPane[i] = new JEditorPane();
@@ -103,7 +103,7 @@ public class home extends JFrame {
 	public void display() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 100, 846, 572);
-		ImageIcon icon = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\mail.png");
+		ImageIcon icon = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\mail.png");
 		this.setIconImage(icon.getImage());
 		this.setTitle("Mailbox");
 		contentPane = new JPanel();
@@ -124,7 +124,7 @@ public class home extends JFrame {
 			reload.addActionListener(handleHome);
 			panel.add(reload);
 
-			ImageIcon reloadImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\reload.png");
+			ImageIcon reloadImg = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\reload.png");
 			reload.setIcon(new ImageIcon(reloadImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
 
 			JButton newMail = new JButton("");
@@ -133,7 +133,7 @@ public class home extends JFrame {
 			newMail.addActionListener(handleHome);
 			panel.add(newMail);
 
-			ImageIcon newMailImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\newMail.jpg");
+			ImageIcon newMailImg = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\newMail.jpg");
 			newMail.setIcon(new ImageIcon(newMailImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
 
 			JMenuBar menuBar = new JMenuBar();

@@ -24,7 +24,7 @@ public class mail {
     private String to, cc;
     private String files;
     private String subject, content, time;
-    private boolean status; // true nếu mail chưa được đọc
+    private boolean status; // true if the mail has not been read
     private ArrayList<String> typeMail;
 
     public mail(String id, String from, String to, String cc, String subject, String content,
