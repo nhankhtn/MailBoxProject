@@ -174,9 +174,5 @@ public class sendHandler {
 		}
 	}
 
-	public static void main(String[] args) {
-		sendHandler sendHandler = new sendHandler("127.0.0.1", 2225);
-		
 
-	}
 }

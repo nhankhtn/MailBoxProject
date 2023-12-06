@@ -1,23 +1,23 @@
 package MailBox.model;
 
-public class autoLoadMail extends Thread {
-    MailBox mailBox;
-    int autoLoad;
+import MailBox.view.home;
 
-    autoLoadMail(MailBox mailBox, int autoLoad) {
-        this.mailBox = mailBox;
-        this.autoLoad = autoLoad;
+public class autoLoadMail extends Thread {
+    private home home;
+
+    public autoLoadMail(home home) {
+        this.home = home;
     }
 
     @Override
     public void run() {
         while(true) { 
             try {
-                Thread.sleep(autoLoad*1000);
+                Thread.sleep(home.getMailBox().getAutoLoad()*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            this.mailBox.cloneEmail();
+            this.home.autoRender();
         }
     }
     

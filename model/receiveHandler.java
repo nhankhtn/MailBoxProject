@@ -81,7 +81,7 @@ public class receiveHandler {
 
             String response = in.readLine();
             if (response.equals("-ERR Invalid message number")) {
-                return new mail(id, from, to, cc, subject, content, time, nameFiles);
+                return new mail(id, from, to, cc, subject, content, time, nameFiles, true);
             } else if (response.startsWith("+OK")) {
                 line = in.readLine();
                 if (line.startsWith("Message-ID")) {
@@ -92,12 +92,6 @@ public class receiveHandler {
                         if (line.startsWith("Date: ")) {
                             time = line.substring(6, line.length());
                         } else if (line.startsWith("To: ")) {
-                            // int begin = 4;
-                            // int end;
-                            // while ((end = line.indexOf("@gmail.com", begin)) != -1) {
-                            //     to.add(line.substring(begin, end + 10));
-                            //     begin = end + 12;
-                            // }
                             to = line.substring(4, line.length());
                         } else if (line.startsWith("From: ")) {
                             from = line.substring(6, line.length());

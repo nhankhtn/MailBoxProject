@@ -3,7 +3,6 @@ package MailBox.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.TextArea;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -17,45 +16,74 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import MailBox.controller.control;
+import MailBox.controller.handleHome;
 import MailBox.model.MailBox;
+import MailBox.model.autoLoadMail;
 import MailBox.model.mail;
 
 public class home extends JFrame {
-	private JPanel contentPane;
-	private JEditorPane[] editorPane;
-	private newMailUI sendMailUI;
-	private JPanel displayMail;
 	private MailBox mailBox;
-	private control control;
-	private JTextPane contentMail;
-	private ArrayList<mail> listMailsCurrent;
+	private autoLoadMail autoLoadMail;
+	private newMailUI sendMailUI;
+	private handleHome handleHome;
+
+	private JPanel contentPane;
+	private JEditorPane[] editorPane; // Where to display the mail list
+	private JPanel displayMail;
+	private JTextPane contentMail; // Where to display the content of mail reading
+	private JCheckBoxMenuItem autoSave;
+	private JScrollPane mainScrollPane;
+
+	private ArrayList<mail> listMailsCurrent; // Saves the current mail list
+	private final int maxPanel = 100;  // The maximum number of pages to display
+	private String pageCurrent; // The current page is  rendering
+
+	public home() {
+		handleHome = new handleHome(this);
+		this.display(); // Displays the mailbox interface
+
+		mailBox = new MailBox();
+		listMailsCurrent = this.mailBox.getMails(); //Loads list mail from the file mails.xml
+
+		autoLoadMail = new autoLoadMail(this); //Automatically download emails and display them on the interface
+		autoLoadMail.start();
+
+
+		editorPane = new JEditorPane[maxPanel];
+		for (int i = 0; i < 9; i++) {
+			editorPane[i] = new JEditorPane();
+			this.displayMail.add(editorPane[i]);
+		}
+
+		this.displayMails(); // Display mail list on the interface
+		this.pageCurrent = "home";
+	}
 
 	public MailBox getMailBox() {
 		return mailBox;
 	}
 
-	public home() {
-		control = new control(this);
-		this.display();
-		this.setVisible(true);
-
-		mailBox = new MailBox();
-
-		listMailsCurrent = this.mailBox.getMails();
-		displayMails();
-	}
-
 	public ArrayList<mail> getListMailsCurrent() {
 		return listMailsCurrent;
+	}
+
+	public boolean getAutoSave() {
+		return autoSave.getState();
+	}
+
+	public String getPageCurrent() {
+		return pageCurrent;
+	}
+
+	public void setPageCurrent(String pageCurrent) {
+		this.pageCurrent = pageCurrent;
 	}
 
 	public void setListMailsCurrent(String pageCurrent) {
@@ -90,59 +118,58 @@ public class home extends JFrame {
 			contentPane.add(panel);
 			panel.setLayout(null);
 
-			JButton clone = new JButton("");
-			clone.setBounds(743, 10, 50, 50);
-			clone.setActionCommand("clone");
-			clone.addActionListener(control);
-			panel.add(clone);
+			JButton reload = new JButton("");
+			reload.setBounds(743, 10, 50, 50);
+			reload.setActionCommand("reload");
+			reload.addActionListener(handleHome);
+			panel.add(reload);
 
-			ImageIcon cloneImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\clone.png");
-			Image cloneImg1 = cloneImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-			clone.setIcon(new ImageIcon(cloneImg1));
+			ImageIcon reloadImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\reload.png");
+			reload.setIcon(new ImageIcon(reloadImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
 
 			JButton newMail = new JButton("");
 			newMail.setBounds(680, 10, 50, 50);
 			newMail.setActionCommand("newMail");
-			newMail.addActionListener(control);
+			newMail.addActionListener(handleHome);
 			panel.add(newMail);
 
 			ImageIcon newMailImg = new ImageIcon("D:\\Workspace\\Socket\\MailBox\\view\\Image\\newMail.jpg");
-			Image newMailImg1 = newMailImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-			newMail.setIcon(new ImageIcon(newMailImg1));
+			newMail.setIcon(new ImageIcon(newMailImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
 
 			JMenuBar menuBar = new JMenuBar();
 			menuBar.setBounds(10, 10, 101, 47);
 			panel.add(menuBar);
 
 			JMenu menuHome = new JMenu("Home");
-			menuHome.addActionListener(control);
+			menuHome.addActionListener(handleHome);
 			menuBar.add(menuHome);
 
 			JMenuItem home = new JMenuItem("All");
-			home.addActionListener(control);
+			home.addActionListener(handleHome);
 			menuHome.add(home);
 
 			JMenuItem project = new JMenuItem("Project");
-			project.addActionListener(control);
+			project.addActionListener(handleHome);
 			menuHome.add(project);
 
 			JMenuItem important = new JMenuItem("Important");
-			important.addActionListener(control);
+			important.addActionListener(handleHome);
 			menuHome.add(important);
 
 			JMenuItem work = new JMenuItem("Work");
-			work.addActionListener(control);
+			work.addActionListener(handleHome);
 			menuHome.add(work);
 
 			JMenuItem spam = new JMenuItem("Spam");
-			spam.addActionListener(control);
+			spam.addActionListener(handleHome);
 			menuHome.add(spam);
 
 			JMenu settings = new JMenu("Settings");
 			menuBar.add(settings);
 
-			JCheckBoxMenuItem autoSave = new JCheckBoxMenuItem("Auto Save");
-			autoSave.addActionListener(control);
+			autoSave = new JCheckBoxMenuItem("Auto Save");
+			autoSave.setSelected(true);
+			autoSave.addActionListener(handleHome);
 			settings.add(autoSave);
 		}
 		{// body home
@@ -159,7 +186,7 @@ public class home extends JFrame {
 			displayMail = new JPanel();
 			displayMail.setLayout(new BoxLayout(displayMail, BoxLayout.Y_AXIS));
 
-			JScrollPane mainScrollPane = new JScrollPane(displayMail);
+			mainScrollPane = new JScrollPane(displayMail);
 			mainScrollPane.setBounds(0, 0, 322, 456);
 			mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -167,43 +194,29 @@ public class home extends JFrame {
 			body.add(mainScrollPane);
 
 		}
+
+		this.setVisible(true);
 	}
 
 	// Display all mail in listMailCurrent
 	public void displayMails() {
-        int lenNeed = 0; // Độ dài cần thiết để xin cấp phát
-        boolean flag = true; // Đánh dấu xem có cần cấp phát thêm không 
-	    
-		// Xác định độ dài cần cấp phát thêm 
 		int length = listMailsCurrent.size();
-		if (editorPane != null) {
-			int sizeCurrent = editorPane.length;
-			if (length > 9 && length > sizeCurrent) {
-				editorPane = new JEditorPane[length - sizeCurrent];
-				lenNeed = length - sizeCurrent;
-			}else {
-				lenNeed = length;
-				flag = false;
-			}
-		} else {
-			if (length > 9) {
-				editorPane = new JEditorPane[length];
-				lenNeed = length;
-			}
-			else {
-				editorPane = new JEditorPane[9];
-				lenNeed = 9;
-			}
-		}
+		/* 
+		 * Variable used to mark whether editorPane already exists outside the interface,
+		 * if not, create and add it, otherwise just add content to it
+		*/
+		boolean flag = false;
 
-		for (int i = 0; i < lenNeed; i++) {
-			if(flag)
-		    	editorPane[i] = new JEditorPane();
+		for (int i = 0; i < length; i++) {
+			if (editorPane[i] == null) {
+				editorPane[i] = new JEditorPane();
+				flag = true;
+			}
 			editorPane[i].setPreferredSize(new Dimension(332, 50));
 			editorPane[i].setContentType("text/html"); // Đặt loại nội dung, ví dụ HTML
-			editorPane[i].addMouseListener(control);
+			editorPane[i].addMouseListener(handleHome);
 			editorPane[i].setEditable(false);
-			// Hiển thị mail
+			// If the email has not been read, it will be displayed in bold text
 			if (listMailsCurrent.get(i).getStatus())
 				editorPane[i].setText("<html><body style='font-size: 12px;'><b>" + listMailsCurrent.get(i).getTime()
 						+ "</b><br><b>" + listMailsCurrent.get(i).getSubject() + "</b><br>"
@@ -215,21 +228,36 @@ public class home extends JFrame {
 						+ "</body></html>");
 
 			editorPane[i].setName(listMailsCurrent.get(i).getId());
-			if(flag)
-	    		displayMail.add(editorPane[i]);
+			if (flag) {
+				this.displayMail.add(editorPane[i]);
+				flag = false;
+			}
 
 			editorPane[i].setBorder(BorderFactory.createTitledBorder(""));
 		}
+        
+		this.mainScrollPane.setAlignmentX(0);
+		this.mainScrollPane.setAlignmentY(0);
+		
 	}
 
+	/*
+	 * This function receives the mail id as a parameter and 
+	 * changes the read status outside the main interface
+	 */
 	public void changeStatus(String id, boolean status) {
 		ArrayList<mail> listMails = this.getMailBox().getMails();
 
 		for (int i = 0; i < listMails.size(); i++) {
 			if (listMails.get(i).getId().equals(id)) {
-				editorPane[i].setText("<html><body style='font-size: 12px;'>" + listMailsCurrent.get(i).getTime()
-						+ "<br>" + listMailsCurrent.get(i).getSubject() + "<br>" + listMailsCurrent.get(i).getContent()
-						+ "</body></html>");
+				editorPane[i].setText(
+						"<html>"
+								+ "<body style='font-size: 12px;'>"
+								+ listMailsCurrent.get(i).getTime()
+								+ "<br>" + listMailsCurrent.get(i).getSubject()
+								+ "<br>" + listMailsCurrent.get(i).getContent()
+								+ "</body>"
+								+ "</html>");
 				break;
 			}
 		}
@@ -257,23 +285,37 @@ public class home extends JFrame {
 			}
 		}
 	}
-
-	public void clear(int numberPanel) {
-		numberPanel = (numberPanel > 9) ? numberPanel : 9;
-		for (int i = 0; i < numberPanel; i++) {
-			if (editorPane[i] != null) {
-				editorPane[i].setText("");
-			}
+ 
+    /*
+	 * This function is used to delete content contained in editorPane
+	 */
+	public void clear() {
+		for (JEditorPane jEditorPane : this.editorPane) {
+			if(jEditorPane!=null) jEditorPane.setText("");
 		}
 	}
 
-	public void sendMail() {
+	/*
+	 * Displays the interface so users can send mail
+	 */
+	public void displaySendMail() {
 		this.sendMailUI = new newMailUI();
 		this.sendMailUI.setVisible(true);
 	}
 
-	public static void main(String[] args) {
-		home home = new home();
+	public void autoRender() {
+		this.mailBox.cloneEmail(); // Pull mail from the server and save it to the mails.xml file
+		this.setListMailsCurrent(pageCurrent); // Change the mail list again after updating
+		this.displayMails(); // Display the mail list again
+	}
 
+	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+			home home = new home();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

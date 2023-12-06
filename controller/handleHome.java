@@ -9,49 +9,60 @@ import javax.swing.JEditorPane;
 
 import MailBox.view.home;
 
-public class control implements ActionListener, MouseListener {
+public class handleHome implements ActionListener, MouseListener {
     private home home;
-    private String pageCurrent;
 
-    public control(home home) {
+    public handleHome(home home) {
         this.home = home;
-        pageCurrent = "home";
     }
 
+
+    /*
+     * Handle button click events in the main interface
+     * 
+     * When clicking the All, Important, Work, Project, Spam
+     * buttons, we will reset the pageCurrent variable, then
+     * delete the mails on the old page and reset the current mail list.
+     * Finally, display that mail list again on the interface
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         if (command.equals("All")) {
-            pageCurrent = "home";
-            this.home.clear(this.home.getListMailsCurrent().size());
-            this.home.setListMailsCurrent(pageCurrent);
+            this.home.setPageCurrent("home");
+            this.home.clear();
+            this.home.setListMailsCurrent("home");
             this.home.displayMails();
         } else if (command.equals("Important")) {
-            pageCurrent = "important";
-            this.home.clear(this.home.getListMailsCurrent().size());
-            this.home.setListMailsCurrent(pageCurrent);
+            this.home.setPageCurrent("important");
+            this.home.clear();
+            this.home.setListMailsCurrent("important");
             this.home.displayMails();
         } else if (command.equals("Work")) {
-            pageCurrent = "work";
-            this.home.clear(this.home.getListMailsCurrent().size());
-            this.home.setListMailsCurrent(pageCurrent);
+            this.home.setPageCurrent("work");
+            this.home.clear();
+            this.home.setListMailsCurrent("work");
             this.home.displayMails();
         } else if (command.equals("Project")) {
-            pageCurrent = "project";
-            this.home.clear(this.home.getListMailsCurrent().size());
-            this.home.setListMailsCurrent(pageCurrent);
+            this.home.setPageCurrent("project");
+            this.home.clear();
+            this.home.setListMailsCurrent("project");
             this.home.displayMails();
         } else if (command.equals("Spam")) {
-            pageCurrent = "spam";
-            this.home.clear(this.home.getListMailsCurrent().size());
-            this.home.setListMailsCurrent(pageCurrent);
+            this.home.setPageCurrent("spam");
+            this.home.clear();
+            this.home.setListMailsCurrent("spam");
             this.home.displayMails();
-        } else if (command.equals("clone")) {
-
+        } else if (command.equals("reload")) {
+            this.home.getMailBox().cloneEmail();
+            this.home.clear();
+            this.home.setListMailsCurrent(this.home.getPageCurrent());
+            this.home.displayMails();
         } else if (command.equals("newMail")) {
-            this.home.sendMail();
+            this.home.displaySendMail();
+        }  else if (command.equals("Auto Save")) {
+            this.home.getMailBox().setAutoSaveFile(!this.home.getAutoSave());
         } 
-        System.out.println(command);
     }
 
     @Override

@@ -18,18 +18,14 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MailBox {
     private String user, password, mailServer;
-    private int SMTPport, POPport, autoload;
-
+    private int SMTPport, POPport, autoLoad;
     private receiveHandler receiveHandler;
     private sendHandler sendHandler;
-
     private autoLoadMail autoLoadMail;
     private String pathSaveFile;
     private boolean autoSaveFile;
@@ -37,8 +33,18 @@ public class MailBox {
     public MailBox() {
         this.configure();
 
-        // autoLoadMail = new autoLoadMail(this, autoload);
-        // autoLoadMail.start();
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public int getAutoLoad(){
+        return autoLoad;
+    }
+
+    public void setAutoSaveFile(boolean autoSaveFile) {
+        this.autoSaveFile = autoSaveFile;
     }
 
     public void configure() {
@@ -59,7 +65,7 @@ public class MailBox {
             mailServer = element.getElementsByTagName("MailServer").item(0).getTextContent();
             SMTPport = Integer.parseInt(element.getElementsByTagName("SMTP").item(0).getTextContent());
             POPport = Integer.parseInt(element.getElementsByTagName("POP3").item(0).getTextContent());
-            autoload = Integer.parseInt(element.getElementsByTagName("Autoload").item(0).getTextContent());
+            autoLoad = Integer.parseInt(element.getElementsByTagName("Autoload").item(0).getTextContent());
 
             // Đọc các cấu hình cho mailbox
             nodeList = doc.getElementsByTagName("Configuration");
@@ -78,7 +84,7 @@ public class MailBox {
         this.saveMailsToFile(newMails);
     }
 
-    public void sendEmail(ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc,
+    public void sendMail(ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc,
             ArrayList<String> pathFiles) {
         this.sendHandler = new sendHandler(mailServer, SMTPport);
         sendHandler.sendEmail(user, to, subject, msg, cc, bcc, pathFiles);
@@ -204,7 +210,7 @@ public class MailBox {
         ArrayList<mail> mailsList = this.getMails();
         ArrayList<mail> mailsImportant = new ArrayList<mail>();
         for(int i=0; i<mailsList.size(); i++) 
-            if(mailsList.get(i).getTypeMail().indexOf("project") > 0) 
+            if(mailsList.get(i).getTypeMail().indexOf("project") >= 0) 
                 mailsImportant.add(mailsList.get(i));
         return mailsImportant;
     }
@@ -213,7 +219,7 @@ public class MailBox {
         ArrayList<mail> mailList = this.getMails();
         ArrayList<mail> mailImportant = new ArrayList<mail>();
         for(int i=0; i<mailList.size(); i++) 
-            if(mailList.get(i).getTypeMail().indexOf("work") > 0) 
+            if(mailList.get(i).getTypeMail().indexOf("work") >= 0) 
                 mailImportant.add(mailList.get(i));
         return mailImportant;
     }
@@ -222,22 +228,9 @@ public class MailBox {
         ArrayList<mail> mailList = this.getMails();
         ArrayList<mail> mailImportant = new ArrayList<mail>();
         for(int i=0; i<mailList.size(); i++) 
-            if(mailList.get(i).getTypeMail().indexOf("spam") > 0) 
+            if(mailList.get(i).getTypeMail().indexOf("spam") >= 0) 
                 mailImportant.add(mailList.get(i));
         return mailImportant;
     }
 
-    public static void main(String[] args) {
-        // MailBox mb = new MailBox();
-        // ArrayList<String> to = new ArrayList<String>();
-        // to.add("nndnhan@gmail.com");
-        // ArrayList<String> cc=new ArrayList<String>();
-        // ArrayList<String> bcc=new ArrayList<String>();
-        // ArrayList<String> pathFiles = new ArrayList<String>();
-        // pathFiles.add("D:\\test\\test.pdf");
-        // mb.sendEmail(to, "hello", "abc def", cc, bcc,pathFiles);
-        // mb.cloneEmail();
-
-        
-    }
 }
