@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Mails>
+  <From>nndnhan@gmail.com</From>
+  <To>nndnhan@gmail.com</To>
+  <Cc/>
+  <Time>CN, 03 thg 12 2023 21:46:14 +0700</Time>
+  <Subject>hello</Subject>
+  <Content>abc def</Content>
+  <Files>test.pdf</Files>
+  <Status>true</Status>
+</Mails>

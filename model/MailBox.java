@@ -2,7 +2,6 @@ package MailBox.model;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -14,7 +13,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -101,30 +103,34 @@ public class MailBox {
 
     public void saveMailsToFile(ArrayList<mail> newMails)  {
        for (mail mail : newMails) 
-           if(!mail.checkEmpty())
-               mail.saveMailToFile(getPathCurrent() + "\\storeMail\\mails.xml");
+           if(!mail.checkEmpty()) {
+            //    mail.saveMailToFile(getPathCurrent() + "\\storeMail");
+               Path filePath = Paths.get(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
+               if(!Files.exists(filePath)) {
+                   mail.saveMailToFile(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
+               }
+           }
     }
 
     /*
-     * Count the number of mails in the mails.xml file
+     * Count the number of mails in the directory storeMail
      */
     public int totalMail() {
-        int countMails = 0;
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(getPathCurrent() + "\\storeMail\\mails.xml");
-            Element mailElement = (Element) doc.getElementsByTagName("Mails").item(0);
-            NodeList childElements = mailElement.getChildNodes();
+        File storeMail = new File(getPathCurrent()+"\\storeMail");
 
-            for (int i = 0; i < childElements.getLength(); i++)
-                if (childElements.item(i) instanceof Element)
-                    countMails++;
-        } catch (Exception e) {
-            e.printStackTrace();
+        FilenameFilter filterFile = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".xml");
+            }
+        };
+        File[] listMails = storeMail.listFiles(filterFile);
+
+        if (listMails != null) {
+            return listMails.length;
+        } else {
+            return 0;
         }
-
-        return countMails;
     }
 
     /*
@@ -132,16 +138,15 @@ public class MailBox {
      */
     public void setStatus(String idMail, boolean status) {
         try {
-            File xmlFile = new File(getPathCurrent() + "\\storeMail\\mails.xml");
+            File xmlFile = new File(getPathCurrent() + "\\storeMail\\" + idMail + ".xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
 
-            NodeList mailList = doc.getElementsByTagName(idMail);
+            NodeList statusList = doc.getElementsByTagName("Status");
 
-            if (mailList.getLength() > 0) {
-                Element mailElement = (Element) mailList.item(0);
-                Element statusElement = (Element) mailElement.getElementsByTagName("Status").item(0);
+            if (statusList.getLength() > 0) {
+                Element statusElement = (Element) statusList.item(0);
 
                 statusElement.setTextContent("false");
             }
@@ -160,35 +165,38 @@ public class MailBox {
     }
 
     /*
-     * Get mail list from mails.xml file
+     * Get mail list from directory storeMail
      */
     public ArrayList<mail> getMails() {
         ArrayList<mail> mails = new ArrayList<mail>();
         try {
-            File xmlFile = new File(getPathCurrent() + "\\storeMail\\mails.xml");
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-            Element rootElement = (Element) doc.getElementsByTagName("Mails").item(0);
-            NodeList listMail = rootElement.getChildNodes();
-
-            for (int i = 0; i < listMail.getLength(); i++) {
-                Node mailNode = listMail.item(i);
-
-                if (mailNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element mailElement = (Element) mailNode;
-                    String id = mailElement.getTagName();
-                    String from = mailElement.getElementsByTagName("From").item(0).getTextContent();
-                    String to = mailElement.getElementsByTagName("To").item(0).getTextContent();
-                    String cc = mailElement.getElementsByTagName("Cc").item(0).getTextContent();
-                    String time = mailElement.getElementsByTagName("Time").item(0).getTextContent();
-                    String subject = mailElement.getElementsByTagName("Subject").item(0).getTextContent();
-                    String content = mailElement.getElementsByTagName("Content").item(0).getTextContent();
-                    String files = mailElement.getElementsByTagName("Files").item(0).getTextContent();
-                    Boolean status = Boolean.parseBoolean(mailElement.getElementsByTagName("Status").item(0).getTextContent());
-                    mail mail = new mail(id , from, to, cc, subject, content, time, files, status);
-                    mails.add(mail);
+            File storeMail = new File(getPathCurrent()+"\\storeMail");
+            FilenameFilter filterFile = new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith(".xml");
                 }
+            };
+            File[] listMails = storeMail.listFiles(filterFile);
+
+            for (File file : listMails) {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(file);
+
+                String name = file.getName();
+                String id = name.substring(name.lastIndexOf("\\")+1, name.length() - 4);
+                String from = doc.getElementsByTagName("From").item(0).getTextContent();
+                String to = doc.getElementsByTagName("To").item(0).getTextContent();
+                String cc = doc.getElementsByTagName("Cc").item(0).getTextContent();
+                String time = doc.getElementsByTagName("Time").item(0).getTextContent();
+                String subject = doc.getElementsByTagName("Subject").item(0).getTextContent();
+                String content = doc.getElementsByTagName("Content").item(0).getTextContent();
+                String files = doc.getElementsByTagName("Files").item(0).getTextContent();
+                Boolean status = Boolean.parseBoolean(doc.getElementsByTagName("Status").item(0).getTextContent());
+
+                mail mail = new mail(id , from, to, cc, subject, content, time, files, status);
+                mails.add(mail);
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block

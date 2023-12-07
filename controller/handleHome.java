@@ -16,7 +16,6 @@ public class handleHome implements ActionListener, MouseListener {
         this.home = home;
     }
 
-
     /*
      * Handle button click events in the main interface
      * 

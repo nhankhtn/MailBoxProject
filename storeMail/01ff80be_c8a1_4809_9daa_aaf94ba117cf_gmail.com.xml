@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Mails>
+  <From>duy nhan mailtest@testing.com</From>
+  <To>mailtest@gmail.com</To>
+  <Cc>nndnhan@gmail.com</Cc>
+  <Time>Fri, 1 Dec 2023 00:54:25 +0700</Time>
+  <Subject>ASAP</Subject>
+  <Content>wfwef</Content>
+  <Files/>
+  <Status>true</Status>
+</Mails>

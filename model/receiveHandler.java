@@ -111,7 +111,7 @@ public class receiveHandler {
                     // Read header of mail
                     while ((line = in.readLine()) != null && !line.equals(boundary)) {
                         if (line.startsWith("Message-ID: ")) {
-                            id = line.substring(12, line.length());
+                            id = "_" + line.substring(12, line.length());
                         } else if (line.startsWith("Date: ")) {
                             time = line.substring(6, line.length());
                         } else if (line.startsWith("To: ")) {

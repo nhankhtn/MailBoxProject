@@ -117,49 +117,42 @@ public class mail {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(pathFile);
+            Document doc = dBuilder.newDocument();
 
-            NodeList nodeList = doc.getElementsByTagName("_" + id);
+            Element rootElement = doc.createElement("Mails");
+            doc.appendChild(rootElement);
 
-            if (nodeList.getLength() == 0) {
-                Element rootElement = (Element) doc.getElementsByTagName("Mails").item(0);
+            Element fromElement = doc.createElement("From");
+            fromElement.appendChild(doc.createTextNode(from));
+            rootElement.appendChild(fromElement);
 
-                Element mail = doc.createElement("_" + id);
+            Element toElement = doc.createElement("To");
+            toElement.appendChild(doc.createTextNode(to));
+            rootElement.appendChild(toElement);
 
-                Element fromElement = doc.createElement("From");
-                fromElement.appendChild(doc.createTextNode(from));
-                mail.appendChild(fromElement);
+            Element ccElement = doc.createElement("Cc");
+            ccElement.appendChild(doc.createTextNode(cc));
+            rootElement.appendChild(ccElement);
 
-                Element toElement = doc.createElement("To");
-                toElement.appendChild(doc.createTextNode(to));
-                mail.appendChild(toElement);
+            Element timeElement = doc.createElement("Time");
+            timeElement.appendChild(doc.createTextNode(time));
+            rootElement.appendChild(timeElement);
 
-                Element ccElement = doc.createElement("Cc");
-                ccElement.appendChild(doc.createTextNode(cc));
-                mail.appendChild(ccElement);
+            Element subjectElement = doc.createElement("Subject");
+            subjectElement.appendChild(doc.createTextNode(subject));
+            rootElement.appendChild(subjectElement);
 
-                Element timeElement = doc.createElement("Time");
-                timeElement.appendChild(doc.createTextNode(time));
-                mail.appendChild(timeElement);
+            Element contentElement = doc.createElement("Content");
+            contentElement.appendChild(doc.createTextNode(content));
+            rootElement.appendChild(contentElement);
 
-                Element subjectElement = doc.createElement("Subject");
-                subjectElement.appendChild(doc.createTextNode(subject));
-                mail.appendChild(subjectElement);
+            Element filesElement = doc.createElement("Files");
+            filesElement.appendChild(doc.createTextNode(files));
+            rootElement.appendChild(filesElement);
 
-                Element contentElement = doc.createElement("Content");
-                contentElement.appendChild(doc.createTextNode(content));
-                mail.appendChild(contentElement);
-
-                Element filesElement = doc.createElement("Files");
-                filesElement.appendChild(doc.createTextNode(files));
-                mail.appendChild(filesElement);
-
-                Element statusElement = doc.createElement("Status");
-                statusElement.appendChild(doc.createTextNode(String.valueOf(status)));
-                mail.appendChild(statusElement);
-
-                rootElement.appendChild(mail);
-            }
+            Element statusElement = doc.createElement("Status");
+            statusElement.appendChild(doc.createTextNode(String.valueOf(status)));
+            rootElement.appendChild(statusElement);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -168,6 +161,8 @@ public class mail {
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File(pathFile));
