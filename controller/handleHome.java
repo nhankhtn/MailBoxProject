@@ -67,6 +67,10 @@ public class handleHome implements ActionListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
         if (e.getSource() instanceof JEditorPane) {
             JEditorPane clickedEditorPane = (JEditorPane) e.getSource();
             String idPanel = clickedEditorPane.getName();
@@ -74,10 +78,6 @@ public class handleHome implements ActionListener, MouseListener {
             home.changeStatus(idPanel, false);
             home.getMailBox().setStatus(idPanel, false);
         }
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
     }
 
     @Override

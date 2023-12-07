@@ -1,10 +1,7 @@
 package MailBox.model;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -22,9 +19,13 @@ public class receiveHandler {
     private BufferedReader in;
     private PrintWriter writer;
     private ArrayList<mail> mails;
-    private int mailLoaded; // Số mail đã được tải, số này giúp hệ thống tránh tải lại các mail đã được tải trước đó
+    private int mailLoaded; /*
+                             * The number of mails that have been downloaded.
+                             * This number helps the system avoid re-downloading previously downloaded mails
+                             */
 
-    receiveHandler(String mailServer, int port, String user, String password,int mailLoaded) {
+    public receiveHandler(String mailServer, int port, String user, String password, int mailLoaded)
+            throws IOException {
         try {
             this.user = user;
             this.password = password;
@@ -35,7 +36,7 @@ public class receiveHandler {
             mails = new ArrayList<>();
             this.mailLoaded = mailLoaded;
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IOException("Can't connect to server: " + port);
         }
     }
 
@@ -43,7 +44,7 @@ public class receiveHandler {
         return mails;
     }
 
-    public void cloneEmail(String pathSaveFile, boolean autoSaveFile) {
+    public void cloneEmail(String pathSaveFile, boolean autoSaveFile) throws IOException {
         writer.println("CAPA");
         readData();
         writer.println("USER " + user);
@@ -54,7 +55,7 @@ public class receiveHandler {
         writer.println("UIDL");
         readData();
 
-        // Tải các mail mới trên mailbox server
+        // Download new mail on mailbox server
         while (true) {
             mail mail = readMail(mailLoaded + 1, pathSaveFile, autoSaveFile);
             mailLoaded++;
@@ -63,17 +64,16 @@ public class receiveHandler {
             mails.add(mail);
         }
 
-        // Gửi lệnh QUIT để đóng kết nối
         writer.println("QUIT");
-        close();
+        this.close();
     }
 
-    // Trả về thông tin mail nếu tồn tại mail, ngược lại trả về mail rỗng
-    mail readMail(int index, String pathSaveFile, boolean autoSaveFile) {
+    // Returns mail information if mail exists, otherwise returns empty mail
+    mail readMail(int index, String pathSaveFile, boolean autoSaveFile) throws IOException {
         writer.println("RETR " + index);
-        String id="", from = "",cc="", to="", subject = "", content = "", time = "", boundary;
+        String id = "", from = "", cc = "", to = "", subject = "", content = "", time = "", boundary;
         ArrayList<String> files = new ArrayList<>();
-        String nameFiles="";
+        String nameFiles = "";
         ArrayList<String> codeFiles = new ArrayList<>();
 
         try {
@@ -85,10 +85,10 @@ public class receiveHandler {
             } else if (response.startsWith("+OK")) {
                 line = in.readLine();
                 if (line.startsWith("Message-ID")) {
-                    // Reader the header of the mail 
-                    id = line.substring(13, line.length()-1);
+                    // Reader the header of the mail
+                    id = line.substring(13, line.length() - 1);
                     id = id.replace("-", "_").replace("@", "_");
-                    while((line = in.readLine()) != null && !line.startsWith("Content-Transfer-Encoding:")) {
+                    while ((line = in.readLine()) != null && !line.startsWith("Content-Transfer-Encoding:")) {
                         if (line.startsWith("Date: ")) {
                             time = line.substring(6, line.length());
                         } else if (line.startsWith("To: ")) {
@@ -101,8 +101,8 @@ public class receiveHandler {
                             cc = line.substring(4, line.length());
                         }
                     }
-                    // Read body of the mail 
-                    while((line = in.readLine()) != null && !line.equals(".")) 
+                    // Read body of the mail
+                    while ((line = in.readLine()) != null && !line.equals("."))
                         content += (line + "\n");
                     content = content.trim();
                 } else { // Read mail if have file attached
@@ -110,7 +110,7 @@ public class receiveHandler {
 
                     // Read header of mail
                     while ((line = in.readLine()) != null && !line.equals(boundary)) {
-                        if(line.startsWith("Message-ID: ")) {
+                        if (line.startsWith("Message-ID: ")) {
                             id = line.substring(12, line.length());
                         } else if (line.startsWith("Date: ")) {
                             time = line.substring(6, line.length());
@@ -162,25 +162,25 @@ public class receiveHandler {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException("Reading file failed: " + e.getMessage(), e);
         }
         return new mail(id, from, to, cc, subject, content, time, nameFiles, true);
     }
 
-    void saveFile(String codeFile, String nameFile, String pathSaveFile) {
+    public void saveFile(String codeFile, String nameFile, String pathSaveFile) throws IOException {
         byte[] decodedBytes = Base64.getDecoder().decode(codeFile);
 
-        // Đường dẫn mặc định để lưu file
+        // Default path to save files
         File directory = new File(pathSaveFile);
 
-        // Kiểm tra xem thư mục đã tồn tại chưa, nếu chưa thì tạo thư mục đó
+        // Check if the folder already exists, if not, create it
         if (!directory.exists())
             directory.mkdir();
 
         Path filePath = Paths.get(pathSaveFile, nameFile);
         if (Files.exists(filePath)) {
             int i = 1;
-            // Tạo tên file mới nếu đã tồn tại file đó trong máy
+            // Create a new file name if that file already exists on your computer
             do {
                 String newName = nameFile.substring(0, nameFile.indexOf(".")) + " (" + i + ")."
                         + nameFile.substring(nameFile.indexOf(".") + 1, nameFile.length());
@@ -191,33 +191,33 @@ public class receiveHandler {
 
         try {
             Files.write(filePath, decodedBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new IOException("Writing file failed", e);
         }
     }
 
     /*
      * Read mail from the server
      */
-    public String readData() {
+    public String readData() throws IOException {
         String msg, res = "";
         try {
             while ((msg = in.readLine()) != null && !msg.equals(".") && !msg.equals("-ERR Invalid message number")) {
                 res += msg + "\n";
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException("Reading data failed", e);
         }
         return res;
     }
 
-    void close() {
+    public void close() throws IOException {
         try {
             socket.close();
             in.close();
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException("Failed to close", e);
         }
     }
 

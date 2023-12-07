@@ -14,6 +14,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -75,14 +76,18 @@ public class MailBox {
      * Get mail from the server and save it to file
      */
     public void cloneEmail() {
-        this.receiveHandler = new receiveHandler(mailServer, POPport, user, password, totalMail());
-        receiveHandler.cloneEmail(pathSaveFile, autoSaveFile);
+        try {
+            this.receiveHandler = new receiveHandler(mailServer, POPport, user, password, totalMail());
+            receiveHandler.cloneEmail(pathSaveFile, autoSaveFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         ArrayList<mail> newMails = receiveHandler.getMails();
         this.saveMailsToFile(newMails);
     }
 
     public void sendMail(ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc,
-            ArrayList<String> pathFiles) throws Exception {
+            ArrayList<String> pathFiles) throws IOException {
         this.sendHandler = new sendHandler(mailServer, SMTPport);
         sendHandler.sendEmail(user, to, subject, msg, cc, bcc, pathFiles);
     }
@@ -94,9 +99,10 @@ public class MailBox {
         return Paths.get("").toAbsolutePath().toString()+"\\MailBox";
     }
 
-    public void saveMailsToFile(ArrayList<mail> newMails) {
+    public void saveMailsToFile(ArrayList<mail> newMails)  {
        for (mail mail : newMails) 
-           mail.saveMailToFile(getPathCurrent() + "\\storeMail\\mails.xml");
+           if(!mail.checkEmpty())
+               mail.saveMailToFile(getPathCurrent() + "\\storeMail\\mails.xml");
     }
 
     /*
@@ -105,22 +111,15 @@ public class MailBox {
     public int totalMail() {
         int countMails = 0;
         try {
-            // Tạo đối tượng Document
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(getPathCurrent() + "\\storeMail\\mails.xml");
-
-            // Lấy phần tử cha (trong trường hợp này là Mail)
             Element mailElement = (Element) doc.getElementsByTagName("Mails").item(0);
-
-            // Lấy danh sách các phần tử con trực tiếp của Mail
             NodeList childElements = mailElement.getChildNodes();
 
-            // Đếm số lượng phần tử con
             for (int i = 0; i < childElements.getLength(); i++)
                 if (childElements.item(i) instanceof Element)
                     countMails++;
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,24 +132,19 @@ public class MailBox {
      */
     public void setStatus(String idMail, boolean status) {
         try {
-            // Đọc tệp XML
             File xmlFile = new File(getPathCurrent() + "\\storeMail\\mails.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
 
-            // Lấy danh sách các phần tử subject trong phần tử Mail
             NodeList mailList = doc.getElementsByTagName(idMail);
 
-            // Kiểm tra xem có phần tử subject nào hay không
             if (mailList.getLength() > 0) {
                 Element mailElement = (Element) mailList.item(0);
                 Element statusElement = (Element) mailElement.getElementsByTagName("Status").item(0);
 
                 statusElement.setTextContent("false");
             }
-
-            // Ghi tệp XML sau khi đã thay đổi
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
 
@@ -170,7 +164,6 @@ public class MailBox {
      */
     public ArrayList<mail> getMails() {
         ArrayList<mail> mails = new ArrayList<mail>();
-        // Đọc tệp XML
         try {
             File xmlFile = new File(getPathCurrent() + "\\storeMail\\mails.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

@@ -1,9 +1,18 @@
 package MailBox.model;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -45,10 +54,10 @@ public class mail {
         return this.from.equals("");
     }
 
-    public String getId(){
+    public String getId() {
         return id;
     }
-    
+
     public String getFrom() {
         return from;
     }
@@ -106,24 +115,21 @@ public class mail {
 
     public void saveMailToFile(String pathFile) {
         try {
-            // Tạo đối tượng Document
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(pathFile);
 
-            NodeList nodeList = doc.getElementsByTagName(id);
+            NodeList nodeList = doc.getElementsByTagName("_" + id);
+
             if (nodeList.getLength() == 0) {
-                // Lấy phần tử cha (trong trường hợp này là Mail)
                 Element rootElement = (Element) doc.getElementsByTagName("Mails").item(0);
 
                 Element mail = doc.createElement("_" + id);
 
-                // Tạo phần tử subject
                 Element fromElement = doc.createElement("From");
                 fromElement.appendChild(doc.createTextNode(from));
                 mail.appendChild(fromElement);
 
-                // Tạo phần tử content
                 Element toElement = doc.createElement("To");
                 toElement.appendChild(doc.createTextNode(to));
                 mail.appendChild(toElement);
@@ -155,25 +161,20 @@ public class mail {
                 rootElement.appendChild(mail);
             }
 
-            // Tạo đối tượng Transformer
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
 
-            // Cài đặt để định dạng
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
 
-            // Tạo nguồn DOM từ document
             DOMSource source = new DOMSource(doc);
-            // Ghi đến một luồng (có thể là file)
             StreamResult result = new StreamResult(new File(pathFile));
 
-            // Áp dụng chuyển đổi để ghi XML
             transformer.transform(source, result);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

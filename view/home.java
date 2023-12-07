@@ -42,20 +42,20 @@ public class home extends JFrame {
 	private JScrollPane mainScrollPane;
 
 	private ArrayList<mail> listMailsCurrent; // Saves the current mail list
-	private final int maxPanel = 100;  // The maximum number of pages to display
-	private String pageCurrent; // The current page is  rendering
+	private final int maxPanel = 100; // The maximum number of pages to display
+	private String pageCurrent; // The current page is rendering
 
 	public home() {
 		handleHome = new handleHome(this);
 
 		mailBox = new MailBox();
-		listMailsCurrent = this.mailBox.getMails(); //Loads list mail from the file mails.xml
+		listMailsCurrent = this.mailBox.getMails(); // Loads list mail from the file mails.xml
 
-		autoLoadMail = new autoLoadMail(this); //Automatically download emails and display them on the interface
+		autoLoadMail = new autoLoadMail(this); // Automatically download emails and display them on the interface
 		autoLoadMail.start();
 
 		this.display(); // Displays the mailbox interface
-		
+
 		editorPane = new JEditorPane[maxPanel];
 		for (int i = 0; i < 9; i++) {
 			editorPane[i] = new JEditorPane();
@@ -103,7 +103,7 @@ public class home extends JFrame {
 	public void display() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 100, 846, 572);
-		ImageIcon icon = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\mail.png");
+		ImageIcon icon = new ImageIcon(mailBox.getPathCurrent() + "\\view\\Image\\mail.png");
 		this.setIconImage(icon.getImage());
 		this.setTitle("Mailbox");
 		contentPane = new JPanel();
@@ -124,7 +124,7 @@ public class home extends JFrame {
 			reload.addActionListener(handleHome);
 			panel.add(reload);
 
-			ImageIcon reloadImg = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\reload.png");
+			ImageIcon reloadImg = new ImageIcon(mailBox.getPathCurrent() + "\\view\\Image\\reload.png");
 			reload.setIcon(new ImageIcon(reloadImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
 
 			JButton newMail = new JButton("");
@@ -133,7 +133,7 @@ public class home extends JFrame {
 			newMail.addActionListener(handleHome);
 			panel.add(newMail);
 
-			ImageIcon newMailImg = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\newMail.jpg");
+			ImageIcon newMailImg = new ImageIcon(mailBox.getPathCurrent() + "\\view\\Image\\newMail.jpg");
 			newMail.setIcon(new ImageIcon(newMailImg.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
 
 			JMenuBar menuBar = new JMenuBar();
@@ -201,16 +201,11 @@ public class home extends JFrame {
 	// Display all mail in listMailCurrent
 	public void displayMails() {
 		int length = listMailsCurrent.size();
-		/* 
-		 * Variable used to mark whether editorPane already exists outside the interface,
-		 * if not, create and add it, otherwise just add content to it
-		*/
-		boolean flag = false;
 
 		for (int i = 0; i < length; i++) {
 			if (editorPane[i] == null) {
 				editorPane[i] = new JEditorPane();
-				flag = true;
+				this.displayMail.add(editorPane[i]);
 			}
 			editorPane[i].setPreferredSize(new Dimension(332, 50));
 			editorPane[i].setContentType("text/html"); // Đặt loại nội dung, ví dụ HTML
@@ -218,31 +213,34 @@ public class home extends JFrame {
 			editorPane[i].setEditable(false);
 			// If the email has not been read, it will be displayed in bold text
 			if (listMailsCurrent.get(i).getStatus())
-				editorPane[i].setText("<html><body style='font-size: 12px;'><b>" + listMailsCurrent.get(i).getTime()
-						+ "</b><br><b>" + listMailsCurrent.get(i).getSubject() + "</b><br>"
-						+ listMailsCurrent.get(i).getContent()
-						+ "</body></html>");
+				editorPane[i].setText("<html>"
+						+ "<body style='font-size: 12px;'>"
+						+ "<b>" + listMailsCurrent.get(i).getTime() + "</b>"
+						+ "<br><b>" + listMailsCurrent.get(i).getSubject() + "</b>"
+						+ "<br>" + listMailsCurrent.get(i).getContent()
+						+ "</body>"
+						+ "</html>");
 			else
-				editorPane[i].setText("<html><body style='font-size: 12px;'>" + listMailsCurrent.get(i).getTime()
-						+ "<br>" + listMailsCurrent.get(i).getSubject() + "<br>" + listMailsCurrent.get(i).getContent()
-						+ "</body></html>");
+				editorPane[i].setText("<html>"
+						+ "<body style='font-size: 12px;'>"
+						+ listMailsCurrent.get(i).getTime()
+						+ "<br>" + listMailsCurrent.get(i).getSubject()
+						+ "<br>" + listMailsCurrent.get(i).getContent()
+						+ "</body>"
+						+ "</html>");
 
 			editorPane[i].setName(listMailsCurrent.get(i).getId());
-			if (flag) {
-				this.displayMail.add(editorPane[i]);
-				flag = false;
-			}
 
 			editorPane[i].setBorder(BorderFactory.createTitledBorder(""));
 		}
-        
+
 		this.mainScrollPane.setAlignmentX(0);
 		this.mainScrollPane.setAlignmentY(0);
-		
+
 	}
 
 	/*
-	 * This function receives the mail id as a parameter and 
+	 * This function receives the mail id as a parameter and
 	 * changes the read status outside the main interface
 	 */
 	public void changeStatus(String id, boolean status) {
@@ -285,13 +283,14 @@ public class home extends JFrame {
 			}
 		}
 	}
- 
-    /*
+
+	/*
 	 * This function is used to delete content contained in editorPane
 	 */
 	public void clear() {
 		for (JEditorPane jEditorPane : this.editorPane) {
-			if(jEditorPane!=null) jEditorPane.setText("");
+			if (jEditorPane != null)
+				jEditorPane.setText("");
 		}
 	}
 

@@ -1,6 +1,7 @@
 package MailBox.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -17,16 +18,19 @@ public class sendHandler {
 	Socket socket;
 	final int SOCKET_TIMEOUT = 15 * 1000;
 
-	public sendHandler(String mailServer, int port) throws Exception {
-		socket = new Socket(mailServer, port);
-		socket.setSoTimeout(SOCKET_TIMEOUT);
-		writer = new PrintWriter(
-				socket.getOutputStream(), true);
-		throw new Exception("Can't connect to server");
+	public sendHandler(String mailServer, int port) throws IOException {
+		try {
+			socket = new Socket(mailServer, port);
+			socket.setSoTimeout(SOCKET_TIMEOUT);
+			writer = new PrintWriter(
+					socket.getOutputStream(), true);
+		} catch (Exception e) {
+			throw new IOException("Can't connect to server: " + port);
+		}
 	}
 
 	public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc,
-			ArrayList<String> bcc, ArrayList<String> pathFiles) {
+			ArrayList<String> bcc, ArrayList<String> pathFiles) throws IOException {
 		String boundary = randomBound(24);
 
 		writer.println("EHLO [127.0.0.1]");
@@ -39,7 +43,7 @@ public class sendHandler {
 			writer.println("RCPT TO:<" + string + ">");
 
 		writer.println("DATA");
-		writer.println("Content-Type: multipart/mixed; boundary=\"------------" + boundary + "\""); // Khi có gửi file
+		writer.println("Content-Type: multipart/mixed; boundary=\"------------" + boundary + "\"");
 		writer.println("Message-ID: " + System.currentTimeMillis());
 		writer.println("Date: " + currentTimeFormat());
 		writer.println("Content-Language: vi-x-KieuCu.[Chuan]");
@@ -69,7 +73,7 @@ public class sendHandler {
 		writer.println(".");
 	}
 
-	void attachFile(PrintWriter writer, String pathFile, String boundary) {
+	void attachFile(PrintWriter writer, String pathFile, String boundary) throws IOException {
 		File f = new File(pathFile);
 		writer.println("");
 		writer.println("--------------" + boundary);
@@ -78,26 +82,23 @@ public class sendHandler {
 		writer.println("Content-Transfer-Encoding: base64");
 		writer.println("");
 
-		try {
-			byte[] fileBytes = Files.readAllBytes(f.toPath());
-			String contentEncode = Base64.getEncoder().encodeToString(fileBytes);
-			int sizeLine = 72;
-			int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
+		byte[] fileBytes = Files.readAllBytes(f.toPath());
+		String contentEncode = Base64.getEncoder().encodeToString(fileBytes);
+		int sizeLine = 72;
+		int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
 
-			String line;
+		String line;
 
-			for (int i = 0; i < len; i++) {
-				if (i == len)
-					line = contentEncode.substring(i * sizeLine, contentEncode.length());
-				else
-					line = contentEncode.substring(i * sizeLine, (i + 1) * sizeLine);
+		for (int i = 0; i < len; i++) {
+			if (i == len)
+				line = contentEncode.substring(i * sizeLine, contentEncode.length());
+			else
+				line = contentEncode.substring(i * sizeLine, (i + 1) * sizeLine);
 
-				writer.println(line);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			writer.println(line);
 		}
 		writer.println("");
+		throw new IOException("Read the file failed");
 	}
 
 	public String currentTimeFormat() {
@@ -132,6 +133,9 @@ public class sendHandler {
 		return randomString.toString();
 	}
 
+	/*
+	 * Format the sending type for the file
+	 */
 	public String typeOfFile(String fileName) {
 		String suffix = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
 		switch (suffix) {

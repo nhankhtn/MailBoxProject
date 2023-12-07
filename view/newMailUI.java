@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -13,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,6 +36,7 @@ public class newMailUI extends JDialog {
 	private JTextField subjectTextField;
 	private JTextField fileTextField;
 	private JTextArea textArea;
+
 	private handleNewMail handleNewMail;
 	private MailBox mailBox;
 	private ArrayList<String> pathFiles;
@@ -41,7 +44,6 @@ public class newMailUI extends JDialog {
 	public newMailUI() {
 		handleNewMail = new handleNewMail(this);
 		mailBox = new MailBox();
-  
 		pathFiles = new ArrayList<>();
 
 		this.display();
@@ -74,7 +76,7 @@ public class newMailUI extends JDialog {
 			attachBtn.addActionListener(handleNewMail);
 			header.add(attachBtn);
 
-			ImageIcon attachImg = new ImageIcon(mailBox.getPathCurrent() +"D\\view\\Image\\attach.png");
+			ImageIcon attachImg = new ImageIcon(mailBox.getPathCurrent() +"\\view\\Image\\attach.png");
 			Image attachImg1 = attachImg.getImage().getScaledInstance(16, 47, Image.SCALE_SMOOTH);
 			attachBtn.setIcon(new ImageIcon(attachImg1));
 
@@ -174,6 +176,9 @@ public class newMailUI extends JDialog {
 		}
 	}
 
+	/*
+	 * Get the content in the entered fields and send email
+	 */
 	public void sendMail() {
 		String to = toTextField.getText().trim();
 		String[] toArr = to.split(" ");
@@ -194,11 +199,9 @@ public class newMailUI extends JDialog {
 	
 		try {
 			this.mailBox.sendMail(recipients, subject, content, recipientCC, recipientBCC, pathFiles);
-		} catch (Exception e) {
-			// Hiển thị lỗi ở đây
-			e.printStackTrace();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
-
 	}
 
 	public ArrayList<String> getPathFilesSelected() {
@@ -210,7 +213,7 @@ public class newMailUI extends JDialog {
 			@Override
 			public boolean accept(File file) {
 				// Chỉ chấp nhận các file có dung lượng nhỏ hơn 5 MB
-				return file.isFile() && file.length() < 5 * 1024 * 1024; // 5 MB
+				return file.isFile() && file.length() < 3 * 1024 * 1024; // 5 MB
 			}
 
 			@Override
@@ -231,6 +234,9 @@ public class newMailUI extends JDialog {
 		return paths;
 	}
 
+	/*
+	 * Displays the names of selected files in the window
+	 */
 	public void renderFilesSelector() {
         String nameFiles="";
 		for(int i = 0; i < this.pathFiles.size(); i++) {
@@ -239,5 +245,4 @@ public class newMailUI extends JDialog {
 		}
 		this.fileTextField.setText(nameFiles);
 	}
-
 }
