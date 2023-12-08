@@ -218,7 +218,7 @@ public class newMailUI extends JDialog {
 
 			@Override
 			public String getDescription() {
-				return "Files (size < 5 MB)";
+				return "Files (size < 3 MB)";
 			}
 		};
 		fc.setFileFilter(ff);
