@@ -104,7 +104,6 @@ public class MailBox {
     public void saveMailsToFile(ArrayList<mail> newMails)  {
        for (mail mail : newMails) 
            if(!mail.checkEmpty()) {
-            //    mail.saveMailToFile(getPathCurrent() + "\\storeMail");
                Path filePath = Paths.get(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
                if(!Files.exists(filePath)) {
                    mail.saveMailToFile(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");

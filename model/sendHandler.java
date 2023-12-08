@@ -74,7 +74,8 @@ public class sendHandler {
 	}
 
 	void attachFile(PrintWriter writer, String pathFile, String boundary) throws IOException {
-		File f = new File(pathFile);
+		try {
+			File f = new File(pathFile);
 		writer.println("");
 		writer.println("--------------" + boundary);
 		writer.println("Content-Type: " + typeOfFile(f.getName()) + "; name=\"" + f.getName() + "\"");
@@ -87,10 +88,11 @@ public class sendHandler {
 		int sizeLine = 72;
 		int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
 
+        System.out.println(len);
 		String line;
 
 		for (int i = 0; i < len; i++) {
-			if (i == len)
+			if (i == len -1)
 				line = contentEncode.substring(i * sizeLine, contentEncode.length());
 			else
 				line = contentEncode.substring(i * sizeLine, (i + 1) * sizeLine);
@@ -98,7 +100,9 @@ public class sendHandler {
 			writer.println(line);
 		}
 		writer.println("");
-		throw new IOException("Read the file failed");
+		} catch (Exception e) {
+			throw new IOException("Read the file failed");
+		}
 	}
 
 	public String currentTimeFormat() {

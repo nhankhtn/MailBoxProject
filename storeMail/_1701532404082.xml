@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Mails>
+    
   <From>nndnhan@gmail.com</From>
+    
   <To>nndnhan@gmail.com</To>
+    
   <Cc/>
+    
   <Time>Th 7, 02 thg 12 2023 22:53:24 +0700</Time>
+    
   <Subject>hello</Subject>
+    
   <Content>abc def</Content>
+    
   <Files>test.txt</Files>
-  <Status>true</Status>
+    
+  <Status>false</Status>
+  
 </Mails>
