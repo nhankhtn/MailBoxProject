@@ -244,7 +244,7 @@ public class home extends JFrame {
 	 * changes the read status outside the main interface
 	 */
 	public void changeStatus(String id, boolean status) {
-		ArrayList<mail> listMails = this.getMailBox().getMails();
+		ArrayList<mail> listMails = this.listMailsCurrent;
 
 		for (int i = 0; i < listMails.size(); i++) {
 			if (listMails.get(i).getId().equals(id)) {
@@ -263,7 +263,7 @@ public class home extends JFrame {
 
 	// This function takes the index of the mail being read and displays it
 	public void renderMailReading(String id) {
-		ArrayList<mail> listMails = this.getMailBox().getMails();
+		ArrayList<mail> listMails = this.listMailsCurrent;
 
 		for (int i = 0; i < listMails.size(); i++) {
 			if (listMails.get(i).getId().equals(id)) {

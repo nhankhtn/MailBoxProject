@@ -1,7 +1,9 @@
 package MailBox.model;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -10,8 +12,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /*
 * Defines an email to display
@@ -25,6 +29,7 @@ public class mail {
     private String subject, content, time;
     private boolean status; // true if the mail has not been read
     private ArrayList<String> typeMail;
+    private ArrayList<ArrayList<String>> keywords;
 
     public mail(String id, String from, String to, String cc, String subject, String content,
             String time, String files, Boolean status) {
@@ -89,17 +94,35 @@ public class mail {
     }
 
     public void setTypeMail() {
+        this.setKeywords();
+
         typeMail = new ArrayList<>();
-        if (subject.indexOf("virus") != -1 || subject.indexOf("hack") != -1 || subject.indexOf("crack") != -1
-                || content.indexOf("virus") != -1 || content.indexOf("hack") != -1 || content.indexOf("crack") != -1)
-            typeMail.add("spam");
-        else {
-            if (from.endsWith("@testing.com"))
+        for (String spam : keywords.get(3)) {
+            if (subject.indexOf(spam) != -1 || content.indexOf(spam) != -1) {
+                typeMail.add("spam");
+                return;
+            }
+        }
+
+        for (String project : keywords.get(0)) {
+            if (from.indexOf(project) != -1) {
                 typeMail.add("project");
-            if (subject.equals("urgent") || subject.equals("ASAP"))
+                break;
+            }
+        }
+
+        for (String important : keywords.get(1)) {
+            if (subject.indexOf(important) != -1) {
                 typeMail.add("important");
-            if (content.indexOf("report") != -1 || content.indexOf("meeting") != -1)
+                break;
+            }
+        }
+
+        for (String work : keywords.get(2)) {
+            if (content.indexOf(work) != -1) {
                 typeMail.add("work");
+                break;
+            }
         }
     }
 
@@ -161,5 +184,33 @@ public class mail {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void setKeywords() {
+        // Get the relative path of the config.xml file
+        try {
+            File xmlFile = new File(Paths.get("").toAbsolutePath().toString() + "\\MailBox\\config.xml");
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList nodeList_3 = doc.getElementsByTagName("Filter");
+            Element element_3 = (Element) nodeList_3.item(0);
+            keywords = new ArrayList<>();
+
+            // Read keywords used to categorize messages
+            String project = element_3.getElementsByTagName("Project").item(0).getTextContent();
+            keywords.add(new ArrayList<>(Arrays.asList(project.trim().split("\\s*,\\s*"))));
+            String important = element_3.getElementsByTagName("Important").item(0).getTextContent();
+            keywords.add(new ArrayList<>(Arrays.asList(important.trim().split("\\s*,\\s*"))));
+            String work = element_3.getElementsByTagName("Work").item(0).getTextContent();
+            keywords.add(new ArrayList<>(Arrays.asList(work.trim().split("\\s*,\\s*"))));
+            String spam = element_3.getElementsByTagName("Spam").item(0).getTextContent();
+            keywords.add(new ArrayList<>(Arrays.asList(spam.trim().split("\\s*,\\s*"))));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
     }
 }

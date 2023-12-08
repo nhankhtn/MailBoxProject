@@ -90,15 +90,15 @@ public class receiveHandler {
                     id = id.replace("-", "_").replace("@", "_");
                     while ((line = in.readLine()) != null && !line.startsWith("Content-Transfer-Encoding:")) {
                         if (line.startsWith("Date: ")) {
-                            time = line.substring(6, line.length());
+                            time = line.substring(6, line.length()).trim();
                         } else if (line.startsWith("To: ")) {
-                            to = line.substring(4, line.length());
+                            to = line.substring(4, line.length()).trim();
                         } else if (line.startsWith("From: ")) {
-                            from = line.substring(6, line.length());
+                            from = line.substring(6, line.length()).trim();
                         } else if (line.startsWith("Subject: ")) {
-                            subject = line.substring(9, line.length());
+                            subject = line.substring(9, line.length()).trim();
                         } else if (line.startsWith("Cc: ")) {
-                            cc = line.substring(4, line.length());
+                            cc = line.substring(4, line.length()).trim();
                         }
                     }
                     // Read body of the mail
@@ -111,17 +111,17 @@ public class receiveHandler {
                     // Read header of mail
                     while ((line = in.readLine()) != null && !line.equals(boundary)) {
                         if (line.startsWith("Message-ID: ")) {
-                            id = "_" + line.substring(12, line.length());
+                            id = "_" + line.substring(12, line.length()).trim();
                         } else if (line.startsWith("Date: ")) {
-                            time = line.substring(6, line.length());
+                            time = line.substring(6, line.length()).trim();
                         } else if (line.startsWith("To: ")) {
-                            to = line.substring(4, line.length());
+                            to = line.substring(4, line.length()).trim();
                         } else if (line.startsWith("From: ")) {
-                            from = line.substring(6, line.length());
+                            from = line.substring(6, line.length()).trim();
                         } else if (line.startsWith("Subject: ")) {
-                            subject = line.substring(9, line.length());
+                            subject = line.substring(9, line.length()).trim();
                         } else if (line.startsWith("Cc: ")) {
-                            cc = line.substring(4, line.length());
+                            cc = line.substring(4, line.length()).trim();
                         }
                     }
 

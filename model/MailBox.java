@@ -46,29 +46,28 @@ public class MailBox {
 
     public void configure() {
         try {
-            // Lấy đường dẫn tương đối của file config.xml
+            // Get the relative path of the config.xml file
             File xmlFile = new File(Paths.get("").toAbsolutePath().toString() + "\\MailBox\\config.xml");
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
             doc.getDocumentElement().normalize();
-            // Đọc thông tin cơ bản
-            NodeList nodeList = doc.getElementsByTagName("General");
 
-            Element element = (Element) nodeList.item(0);
-            user = element.getElementsByTagName("Username").item(0).getTextContent();
-            password = element.getElementsByTagName("Password").item(0).getTextContent();
-            mailServer = element.getElementsByTagName("MailServer").item(0).getTextContent();
-            SMTPport = Integer.parseInt(element.getElementsByTagName("SMTP").item(0).getTextContent());
-            POPport = Integer.parseInt(element.getElementsByTagName("POP3").item(0).getTextContent());
-            autoLoad = Integer.parseInt(element.getElementsByTagName("Autoload").item(0).getTextContent());
+            // Read basic information for mailbox
+            NodeList nodeList_1 = doc.getElementsByTagName("General");
+            Element element_1 = (Element) nodeList_1.item(0);
+            user =element_1.getElementsByTagName("Username").item(0).getTextContent();
+            password =element_1.getElementsByTagName("Password").item(0).getTextContent();
+            mailServer =element_1.getElementsByTagName("MailServer").item(0).getTextContent();
+            SMTPport = Integer.parseInt(element_1.getElementsByTagName("SMTP").item(0).getTextContent());
+            POPport = Integer.parseInt(element_1.getElementsByTagName("POP3").item(0).getTextContent());
+            autoLoad = Integer.parseInt(element_1.getElementsByTagName("Autoload").item(0).getTextContent());
 
-            // Đọc các cấu hình cho mailbox
-            nodeList = doc.getElementsByTagName("Configuration");
-            element = (Element) nodeList.item(0);
-            pathSaveFile = element.getElementsByTagName("PathDefault").item(0).getTextContent();
-            autoSaveFile = Boolean.parseBoolean(element.getElementsByTagName("AutoSave").item(0).getTextContent());
+            NodeList nodeList_2 = doc.getElementsByTagName("Configure");
+            Element element_2 = (Element) nodeList_2.item(0);
+            pathSaveFile = element_2.getElementsByTagName("PathDefault").item(0).getTextContent();
+            autoSaveFile = Boolean.parseBoolean(element_2.getElementsByTagName("AutoSave").item(0).getTextContent());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,7 +197,6 @@ public class MailBox {
                 mails.add(mail);
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return mails;
