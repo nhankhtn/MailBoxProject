@@ -88,7 +88,6 @@ public class sendHandler {
 		int sizeLine = 72;
 		int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
 
-        System.out.println(len);
 		String line;
 
 		for (int i = 0; i < len; i++) {
