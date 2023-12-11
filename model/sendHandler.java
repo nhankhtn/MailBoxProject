@@ -1,4 +1,4 @@
-package MailBox.model;
+package model;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import java.util.Base64;
 import java.util.Calendar;
 
 public class sendHandler {
-	PrintWriter writer;
-	Socket socket;
-	final int SOCKET_TIMEOUT = 15 * 1000;
+	private PrintWriter writer;
+	private Socket socket;
+	private final int SOCKET_TIMEOUT = 15 * 1000;
 
 	public sendHandler(String mailServer, int port) throws IOException {
 		try {
@@ -71,6 +71,8 @@ public class sendHandler {
 		// Footer
 		writer.println("--------------" + boundary + "--");
 		writer.println(".");
+
+		this.close();
 	}
 
 	void attachFile(PrintWriter writer, String pathFile, String boundary) throws IOException {
@@ -180,4 +182,12 @@ public class sendHandler {
 		}
 	}
 
+	public void close() {
+		try {
+			this.writer.close();
+			this.socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

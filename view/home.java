@@ -1,4 +1,4 @@
-package MailBox.view;
+package view;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,10 +23,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import MailBox.controller.handleHome;
-import MailBox.model.MailBox;
-import MailBox.model.autoLoadMail;
-import MailBox.model.mail;
+import controller.handleHome;
+import model.MailBox;
+import model.autoLoadMail;
+import model.mail;
 
 public class home extends JFrame {
 	private MailBox mailBox;
@@ -192,9 +192,7 @@ public class home extends JFrame {
 			mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 			body.add(mainScrollPane);
-
 		}
-
 		this.setVisible(true);
 	}
 
@@ -308,11 +306,15 @@ public class home extends JFrame {
 		this.displayMails(); // Display the mail list again
 	}
 
+	public String getPath(){
+		return home.class.getResourceAsStream("../config.xml").toString();
+	}
+
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-			home home = new home();
+			home home = new home();			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

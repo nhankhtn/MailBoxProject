@@ -1,4 +1,4 @@
-package MailBox.controller;
+package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,7 +7,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JEditorPane;
 
-import MailBox.view.home;
+import view.home;
 
 public class handleHome implements ActionListener, MouseListener {
     private home home;

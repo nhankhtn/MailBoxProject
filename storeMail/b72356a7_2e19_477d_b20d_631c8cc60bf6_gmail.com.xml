@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Mails>
-  <From>duy nhan mailtest@gmail.com</From>
+  <From>duy nhan &lt;mailtest@gmail.com&gt;</From>
   <To>mailtest@gmail.com</To>
-  <Cc>abc@gmail.com</Cc>
+  <Cc>"\"abc"@gmail.com</Cc>
   <Time>Fri, 1 Dec 2023 00:43:08 +0700</Time>
   <Subject>agwae</Subject>
   <Content>wfwef</Content>

@@ -1,4 +1,4 @@
-package MailBox.model;
+package model;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -74,7 +74,6 @@ public class receiveHandler {
         String id = "", from = "", cc = "", to = "", subject = "", content = "", time = "", boundary;
         ArrayList<String> files = new ArrayList<>();
         String nameFiles = "";
-        ArrayList<String> codeFiles = new ArrayList<>();
 
         try {
             String line;
@@ -149,7 +148,6 @@ public class receiveHandler {
 
                         if (autoSaveFile)
                             saveFile(codeFile, files.get(files.size() - 1), pathSaveFile);
-                        codeFiles.add(codeFile);
                     }
 
                     for (int i = 0; i < files.size(); i++) {

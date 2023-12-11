@@ -1,9 +1,9 @@
-package MailBox.controller;
+package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import MailBox.view.newMailUI;
+import view.newMailUI;
 
 public class handleNewMail implements ActionListener {
     private newMailUI newMailUI;

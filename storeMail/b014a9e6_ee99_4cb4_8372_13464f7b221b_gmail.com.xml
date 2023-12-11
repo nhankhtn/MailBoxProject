@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Mails>
-    
   <From>duy nhan &lt;mailtest@gmail.com&gt;</From>
-    
   <To>mailtest@gmail.com</To>
-    
   <Cc>mailtest@gmail.com, nndnhan@gmail.com</Cc>
-    
   <Time>Fri, 1 Dec 2023 01:03:46 +0700</Time>
-    
   <Subject>=?UTF-8?B?w6Bld2Y=?=</Subject>
-    
   <Content>fwefw</Content>
-    
   <Files/>
-    
   <Status>false</Status>
-  
 </Mails>

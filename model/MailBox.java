@@ -1,4 +1,4 @@
-package MailBox.model;
+package model;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,7 +36,7 @@ public class MailBox {
         return user;
     }
 
-    public int getAutoLoad(){
+    public int getAutoLoad() {
         return autoLoad;
     }
 
@@ -46,8 +46,7 @@ public class MailBox {
 
     public void configure() {
         try {
-            // Get the relative path of the config.xml file
-            File xmlFile = new File(Paths.get("").toAbsolutePath().toString() + "\\MailBox\\config.xml");
+            File xmlFile = new File(this.getPathCurrent()+ "\\config.xml");
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -57,9 +56,9 @@ public class MailBox {
             // Read basic information for mailbox
             NodeList nodeList_1 = doc.getElementsByTagName("General");
             Element element_1 = (Element) nodeList_1.item(0);
-            user =element_1.getElementsByTagName("Username").item(0).getTextContent();
-            password =element_1.getElementsByTagName("Password").item(0).getTextContent();
-            mailServer =element_1.getElementsByTagName("MailServer").item(0).getTextContent();
+            user = element_1.getElementsByTagName("Username").item(0).getTextContent();
+            password = element_1.getElementsByTagName("Password").item(0).getTextContent();
+            mailServer = element_1.getElementsByTagName("MailServer").item(0).getTextContent();
             SMTPport = Integer.parseInt(element_1.getElementsByTagName("SMTP").item(0).getTextContent());
             POPport = Integer.parseInt(element_1.getElementsByTagName("POP3").item(0).getTextContent());
             autoLoad = Integer.parseInt(element_1.getElementsByTagName("Autoload").item(0).getTextContent());
@@ -97,24 +96,32 @@ public class MailBox {
      * Get the current path of the project
      */
     public String getPathCurrent() {
-        return Paths.get("").toAbsolutePath().toString()+"\\MailBox";
+        // return Paths.get("").toAbsolutePath().toString();
+        String currentPath="";
+        try {
+            currentPath = new java.io.File(".").getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return currentPath;
     }
 
-    public void saveMailsToFile(ArrayList<mail> newMails)  {
-       for (mail mail : newMails) 
+    public void saveMailsToFile(ArrayList<mail> newMails) {
+        for (mail mail : newMails) {
            if(!mail.checkEmpty()) {
                Path filePath = Paths.get(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
                if(!Files.exists(filePath)) {
                    mail.saveMailToFile(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
                }
            }
+        }
     }
 
     /*
      * Count the number of mails in the directory storeMail
      */
     public int totalMail() {
-        File storeMail = new File(getPathCurrent()+"\\storeMail");
+        File storeMail = new File(getPathCurrent() + "\\storeMail");
 
         FilenameFilter filterFile = new FilenameFilter() {
             @Override
@@ -175,6 +182,7 @@ public class MailBox {
                     return name.toLowerCase().endsWith(".xml");
                 }
             };
+
             File[] listMails = storeMail.listFiles(filterFile);
 
             for (File file : listMails) {
@@ -183,7 +191,7 @@ public class MailBox {
                 Document doc = dBuilder.parse(file);
 
                 String name = file.getName();
-                String id = name.substring(name.lastIndexOf("\\")+1, name.length() - 4);
+                String id = name.substring(name.lastIndexOf("\\") + 1, name.length() - 4);
                 String from = doc.getElementsByTagName("From").item(0).getTextContent();
                 String to = doc.getElementsByTagName("To").item(0).getTextContent();
                 String cc = doc.getElementsByTagName("Cc").item(0).getTextContent();
@@ -193,7 +201,7 @@ public class MailBox {
                 String files = doc.getElementsByTagName("Files").item(0).getTextContent();
                 Boolean status = Boolean.parseBoolean(doc.getElementsByTagName("Status").item(0).getTextContent());
 
-                mail mail = new mail(id , from, to, cc, subject, content, time, files, status);
+                mail mail = new mail(id, from, to, cc, subject, content, time, files, status);
                 mails.add(mail);
             }
         } catch (Exception e) {
@@ -202,41 +210,41 @@ public class MailBox {
         return mails;
     }
 
-    public ArrayList<mail> getMailImportant(){
+    public ArrayList<mail> getMailImportant() {
         ArrayList<mail> mailList = this.getMails();
-        ArrayList<mail> mailImportant = new ArrayList<mail>();
-        for(int i=0; i<mailList.size(); i++) {
-            if(mailList.get(i).getTypeMail().indexOf("important") >= 0) 
-                mailImportant.add(mailList.get(i));
-        }
-        return mailImportant;
-    }
-
-    public ArrayList<mail> getMailProject(){
-        ArrayList<mail> mailsList = this.getMails();
         ArrayList<mail> mailsImportant = new ArrayList<mail>();
-        for(int i=0; i<mailsList.size(); i++) 
-            if(mailsList.get(i).getTypeMail().indexOf("project") >= 0) 
-                mailsImportant.add(mailsList.get(i));
+        for (int i = 0; i < mailList.size(); i++) {
+            if (mailList.get(i).getTypeMail().indexOf("important") >= 0)
+                mailsImportant.add(mailList.get(i));
+        }
         return mailsImportant;
     }
 
-    public ArrayList<mail> getMailWork(){
-        ArrayList<mail> mailList = this.getMails();
-        ArrayList<mail> mailImportant = new ArrayList<mail>();
-        for(int i=0; i<mailList.size(); i++) 
-            if(mailList.get(i).getTypeMail().indexOf("work") >= 0) 
-                mailImportant.add(mailList.get(i));
-        return mailImportant;
+    public ArrayList<mail> getMailProject() {
+        ArrayList<mail> mailsList = this.getMails();
+        ArrayList<mail> mailsProject = new ArrayList<mail>();
+        for (int i = 0; i < mailsList.size(); i++)
+            if (mailsList.get(i).getTypeMail().indexOf("project") >= 0)
+                mailsProject.add(mailsList.get(i));
+        return mailsProject;
     }
 
-    public ArrayList<mail> getMailSpam(){
+    public ArrayList<mail> getMailWork() {
         ArrayList<mail> mailList = this.getMails();
-        ArrayList<mail> mailImportant = new ArrayList<mail>();
-        for(int i=0; i<mailList.size(); i++) 
-            if(mailList.get(i).getTypeMail().indexOf("spam") >= 0) 
-                mailImportant.add(mailList.get(i));
-        return mailImportant;
+        ArrayList<mail> mailsWork = new ArrayList<mail>();
+        for (int i = 0; i < mailList.size(); i++)
+            if (mailList.get(i).getTypeMail().indexOf("work") >= 0)
+                mailsWork.add(mailList.get(i));
+        return mailsWork;
+    }
+
+    public ArrayList<mail> getMailSpam() {
+        ArrayList<mail> mailList = this.getMails();
+        ArrayList<mail> mailsSpam = new ArrayList<mail>();
+        for (int i = 0; i < mailList.size(); i++)
+            if (mailList.get(i).getTypeMail().indexOf("spam") >= 0)
+                mailsSpam.add(mailList.get(i));
+        return mailsSpam;
     }
 
 }

@@ -1,4 +1,4 @@
-package MailBox.model;
+package model;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -187,9 +187,8 @@ public class mail {
     }
 
     private void setKeywords() {
-        // Get the relative path of the config.xml file
         try {
-            File xmlFile = new File(Paths.get("").toAbsolutePath().toString() + "\\MailBox\\config.xml");
+            File xmlFile = new File(Paths.get("").toAbsolutePath().toString() + "\\config.xml");
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

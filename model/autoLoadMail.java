@@ -1,6 +1,6 @@
-package MailBox.model;
+package model;
 
-import MailBox.view.home;
+import view.home;
 
 public class autoLoadMail extends Thread {
     private home home;
