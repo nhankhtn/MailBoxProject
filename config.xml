@@ -7,12 +7,8 @@
     <SMTP>2225</SMTP>
     <POP3>3335</POP3>
     <Autoload>10</Autoload>
+    <PathDefault>C:\\Mailbox</PathDefault>
   </General>
-  <Configure>
-     <!-- Default path to save files to email when downloading -->
-    <PathDefault>D:\\Mailbox</PathDefault>
-    <AutoSave>true</AutoSave>
-  </Configure>
   <Filter>
     <!--Move emails sent from ahihi@testing.com and ahuu@testing.com addresses to the Project folder -->
     <Project>ahihi@testing.com, ahuu@testing.com</Project>

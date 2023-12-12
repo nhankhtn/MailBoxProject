@@ -30,6 +30,7 @@ public class MailBox {
 
     public MailBox() {
         this.configure();
+        this.autoSaveFile = true;
     }
 
     public String getUser() {
@@ -62,11 +63,7 @@ public class MailBox {
             SMTPport = Integer.parseInt(element_1.getElementsByTagName("SMTP").item(0).getTextContent());
             POPport = Integer.parseInt(element_1.getElementsByTagName("POP3").item(0).getTextContent());
             autoLoad = Integer.parseInt(element_1.getElementsByTagName("Autoload").item(0).getTextContent());
-
-            NodeList nodeList_2 = doc.getElementsByTagName("Configure");
-            Element element_2 = (Element) nodeList_2.item(0);
-            pathSaveFile = element_2.getElementsByTagName("PathDefault").item(0).getTextContent();
-            autoSaveFile = Boolean.parseBoolean(element_2.getElementsByTagName("AutoSave").item(0).getTextContent());
+            pathSaveFile = element_1.getElementsByTagName("PathDefault").item(0).getTextContent();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,9 +107,8 @@ public class MailBox {
         for (mail mail : newMails) {
            if(!mail.checkEmpty()) {
                Path filePath = Paths.get(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
-               if(!Files.exists(filePath)) {
+               if(!Files.exists(filePath)) 
                    mail.saveMailToFile(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
-               }
            }
         }
     }
