@@ -75,7 +75,6 @@ public class handleHome implements ActionListener, MouseListener {
             String idPanel = clickedEditorPane.getName();
             home.renderMailReading(idPanel);
             home.changeStatus(idPanel, false);
-            home.getMailBox().setStatus(idPanel, false);
         }
     }
 

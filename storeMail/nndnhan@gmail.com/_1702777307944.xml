@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Mails>
+  <From>Duy Nhan  nndnhan@gmail.com</From>
+  <To>nndnhan@gmail.com</To>
+  <Cc/>
+  <Time>CN, 17 thg 12 2023 08:41:47 +0700</Time>
+  <Subject>test</Subject>
+  <Content>test l???n cu???i cu???i</Content>
+  <Files>nhan.txt</Files>
+  <Status>true</Status>
+</Mails>

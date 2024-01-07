@@ -29,11 +29,12 @@ public class sendHandler {
 		}
 	}
 
-	public void sendEmail(String from, ArrayList<String> to, String subject, String msg, ArrayList<String> cc,
+	public void sendEmail(String name, String from, ArrayList<String> to, String subject, String msg,
+			ArrayList<String> cc,
 			ArrayList<String> bcc, ArrayList<String> pathFiles) throws IOException {
 		String boundary = randomBound(24);
 
-		writer.println("EHLO [127.0.0.1]");
+		writer.println("EHLO");
 		writer.println("MAIL FROM:<" + from + ">");
 		for (String string : to)
 			writer.println("RCPT TO:<" + string + ">");
@@ -46,19 +47,21 @@ public class sendHandler {
 		writer.println("Content-Type: multipart/mixed; boundary=\"------------" + boundary + "\"");
 		writer.println("Message-ID: " + System.currentTimeMillis());
 		writer.println("Date: " + currentTimeFormat());
-		writer.println("Content-Language: vi-x-KieuCu.[Chuan]");
+		writer.println("Content-Type: text/plain; charset=UTF-8; format=flowed");
+		writer.println("Content-Language: vi");
 		writer.println("To: " + unionEmail(to));
 		if (cc.size() != 0)
 			writer.println("Cc: " + unionEmail(cc));
 
-		writer.println("From: " + from);
+		writer.println("From: " + name + " " + from);
 		writer.println("Subject: " + subject);
 		writer.println("");
 
-		writer.println("This is a multi-part message in MIME format.");
 		// Body
+		writer.println("This is a multi-part message in MIME format.");
 		writer.println("--------------" + boundary);
 		writer.println("Content-Type: text/plain; charset=UTF-8; format=flowed");
+		writer.println("Content-Language: vi");
 		writer.println("Content-Transfer-Encoding: 7bit");
 		writer.println("");
 
@@ -78,29 +81,29 @@ public class sendHandler {
 	void attachFile(PrintWriter writer, String pathFile, String boundary) throws IOException {
 		try {
 			File f = new File(pathFile);
-		writer.println("");
-		writer.println("--------------" + boundary);
-		writer.println("Content-Type: " + typeOfFile(f.getName()) + "; name=\"" + f.getName() + "\"");
-		writer.println("Content-Disposition: attachment; filename=\"" + f.getName() + "\"");
-		writer.println("Content-Transfer-Encoding: base64");
-		writer.println("");
+			writer.println("");
+			writer.println("--------------" + boundary);
+			writer.println("Content-Type: " + typeOfFile(f.getName()) + "; name=\"" + f.getName() + "\"");
+			writer.println("Content-Disposition: attachment; filename=\"" + f.getName() + "\"");
+			writer.println("Content-Transfer-Encoding: base64");
+			writer.println("");
 
-		byte[] fileBytes = Files.readAllBytes(f.toPath());
-		String contentEncode = Base64.getEncoder().encodeToString(fileBytes);
-		int sizeLine = 72;
-		int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
+			byte[] fileBytes = Files.readAllBytes(f.toPath());
+			String contentEncode = Base64.getEncoder().encodeToString(fileBytes);
+			int sizeLine = 72;
+			int len = (int) Math.ceil((double) contentEncode.length() / sizeLine);
 
-		String line;
+			String line;
 
-		for (int i = 0; i < len; i++) {
-			if (i == len -1)
-				line = contentEncode.substring(i * sizeLine, contentEncode.length());
-			else
-				line = contentEncode.substring(i * sizeLine, (i + 1) * sizeLine);
+			for (int i = 0; i < len; i++) {
+				if (i == len - 1)
+					line = contentEncode.substring(i * sizeLine, contentEncode.length());
+				else
+					line = contentEncode.substring(i * sizeLine, (i + 1) * sizeLine);
 
-			writer.println(line);
-		}
-		writer.println("");
+				writer.println(line);
+			}
+			writer.println("");
 		} catch (Exception e) {
 			throw new IOException("Read the file failed");
 		}

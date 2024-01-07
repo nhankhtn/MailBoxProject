@@ -246,14 +246,18 @@ public class home extends JFrame {
 
 		for (int i = 0; i < listMails.size(); i++) {
 			if (listMails.get(i).getId().equals(id)) {
-				editorPane[i].setText(
-						"<html>"
-								+ "<body style='font-size: 12px;'>"
-								+ listMailsCurrent.get(i).getTime()
-								+ "<br>" + listMailsCurrent.get(i).getSubject()
-								+ "<br>" + listMailsCurrent.get(i).getContent()
-								+ "</body>"
-								+ "</html>");
+				if (listMails.get(i).getStatus()) {
+					editorPane[i].setText(
+							"<html>"
+									+ "<body style='font-size: 12px;'>"
+									+ listMailsCurrent.get(i).getTime()
+									+ "<br>" + listMailsCurrent.get(i).getSubject()
+									+ "<br>" + listMailsCurrent.get(i).getContent()
+									+ "</body>"
+									+ "</html>");
+
+					this.getMailBox().setStatus(id, false);
+				}
 				break;
 			}
 		}
@@ -306,15 +310,10 @@ public class home extends JFrame {
 		this.displayMails(); // Display the mail list again
 	}
 
-	public String getPath(){
-		return home.class.getResourceAsStream("../config.xml").toString();
-	}
-
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-			home home = new home();			
+			home home = new home();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

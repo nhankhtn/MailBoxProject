@@ -15,13 +15,14 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MailBox {
-    private String user, password, mailServer;
+    private String name, email, password, mailServer;
     private int SMTPport, POPport, autoLoad;
     private receiveHandler receiveHandler;
     private sendHandler sendHandler;
@@ -31,10 +32,12 @@ public class MailBox {
     public MailBox() {
         this.configure();
         this.autoSaveFile = true;
+
+        this.createDirUser();
     }
 
-    public String getUser() {
-        return user;
+    public String getEmail() {
+        return email;
     }
 
     public int getAutoLoad() {
@@ -47,17 +50,18 @@ public class MailBox {
 
     public void configure() {
         try {
-            File xmlFile = new File(this.getPathCurrent()+ "\\config.xml");
-
+            InputStream inputStream = getClass().getResourceAsStream("/config.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
+            Document doc = dBuilder.parse(inputStream);
             doc.getDocumentElement().normalize();
 
             // Read basic information for mailbox
             NodeList nodeList_1 = doc.getElementsByTagName("General");
             Element element_1 = (Element) nodeList_1.item(0);
-            user = element_1.getElementsByTagName("Username").item(0).getTextContent();
+            String user = element_1.getElementsByTagName("Username").item(0).getTextContent();
+            name = user.substring(0, user.lastIndexOf(" ") +1).trim();
+            email = user.substring(user.lastIndexOf(" ") +1, user.length()).trim();
             password = element_1.getElementsByTagName("Password").item(0).getTextContent();
             mailServer = element_1.getElementsByTagName("MailServer").item(0).getTextContent();
             SMTPport = Integer.parseInt(element_1.getElementsByTagName("SMTP").item(0).getTextContent());
@@ -74,7 +78,7 @@ public class MailBox {
      */
     public void cloneEmail() {
         try {
-            this.receiveHandler = new receiveHandler(mailServer, POPport, user, password, totalMail());
+            this.receiveHandler = new receiveHandler(mailServer, POPport, email, password, totalMail());
             receiveHandler.cloneEmail(pathSaveFile, autoSaveFile);
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,30 +90,24 @@ public class MailBox {
     public void sendMail(ArrayList<String> to, String subject, String msg, ArrayList<String> cc, ArrayList<String> bcc,
             ArrayList<String> pathFiles) throws IOException {
         this.sendHandler = new sendHandler(mailServer, SMTPport);
-        sendHandler.sendEmail(user, to, subject, msg, cc, bcc, pathFiles);
+        sendHandler.sendEmail(name, email, to, subject, msg, cc, bcc, pathFiles);
     }
 
     /*
      * Get the current path of the project
      */
     public String getPathCurrent() {
-        // return Paths.get("").toAbsolutePath().toString();
-        String currentPath="";
-        try {
-            currentPath = new java.io.File(".").getCanonicalPath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return currentPath;
+        return Paths.get("").toAbsolutePath().toString();
     }
 
     public void saveMailsToFile(ArrayList<mail> newMails) {
         for (mail mail : newMails) {
-           if(!mail.checkEmpty()) {
-               Path filePath = Paths.get(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
-               if(!Files.exists(filePath)) 
-                   mail.saveMailToFile(getPathCurrent() + "\\storeMail\\"+mail.getId()+".xml");
-           }
+            if (!mail.checkEmpty()) {
+                Path filePath = Paths
+                        .get(getPathCurrent() + "\\storeMail\\" + this.email + "\\" + mail.getId() + ".xml");
+                if (!Files.exists(filePath))
+                    mail.saveMailToFile(getPathCurrent() + "\\storeMail\\" + this.email + "\\" + mail.getId() + ".xml");
+            }
         }
     }
 
@@ -117,7 +115,7 @@ public class MailBox {
      * Count the number of mails in the directory storeMail
      */
     public int totalMail() {
-        File storeMail = new File(getPathCurrent() + "\\storeMail");
+        File storeMail = new File(getPathCurrent() + "\\storeMail\\" + this.email);
 
         FilenameFilter filterFile = new FilenameFilter() {
             @Override
@@ -127,11 +125,7 @@ public class MailBox {
         };
         File[] listMails = storeMail.listFiles(filterFile);
 
-        if (listMails != null) {
-            return listMails.length;
-        } else {
-            return 0;
-        }
+        return listMails!=null ? listMails.length : 0;
     }
 
     /*
@@ -139,7 +133,7 @@ public class MailBox {
      */
     public void setStatus(String idMail, boolean status) {
         try {
-            File xmlFile = new File(getPathCurrent() + "\\storeMail\\" + idMail + ".xml");
+            File xmlFile = new File(getPathCurrent() + "\\storeMail\\" + this.email + "\\" + idMail + ".xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
@@ -171,7 +165,7 @@ public class MailBox {
     public ArrayList<mail> getMails() {
         ArrayList<mail> mails = new ArrayList<mail>();
         try {
-            File storeMail = new File(getPathCurrent()+"\\storeMail");
+            File storeMail = new File(getPathCurrent() + "\\storeMail\\" + this.email);
             FilenameFilter filterFile = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -243,4 +237,10 @@ public class MailBox {
         return mailsSpam;
     }
 
+    private void createDirUser() {
+        File userDir = new File(this.getPathCurrent()+"/storeMail/" + this.email);
+        if (!userDir.exists()) {
+            userDir.mkdirs();
+        }
+    }
 }

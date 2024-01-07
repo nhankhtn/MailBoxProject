@@ -103,7 +103,7 @@ public class newMailUI extends JDialog {
 			fromTextField = new JTextField();
 			fromTextField.setFont(new Font("Tahoma", Font.PLAIN, 8));
 			fromTextField.setBounds(59, 10, 188, 18);
-			fromTextField.setText(mailBox.getUser());
+			fromTextField.setText(mailBox.getEmail());
 			fromTextField.setEditable(false);
 			header.add(fromTextField);
 			fromTextField.setColumns(10);
@@ -212,13 +212,13 @@ public class newMailUI extends JDialog {
 		FileFilter ff = new FileFilter() {
 			@Override
 			public boolean accept(File file) {
-				// Chỉ chấp nhận các file có dung lượng nhỏ hơn 2 MB
-				return file.isFile() && file.length() < 2 * 1024 * 1024; // 2 MB
+				// Chỉ chấp nhận các file có dung lượng nhỏ hơn 3 MB
+				return file.isFile() && file.length() < 3 * 1024 * 1024; 
 			}
 
 			@Override
 			public String getDescription() {
-				return "Files (size < 2 MB)";
+				return "Files (size < 3 MB)";
 			}
 		};
 		fc.setFileFilter(ff);

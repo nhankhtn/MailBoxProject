@@ -19,6 +19,7 @@ public class receiveHandler {
     private BufferedReader in;
     private PrintWriter writer;
     private ArrayList<mail> mails;
+    private final int SOCKET_TIMEOUT = 15 * 1000;
     private int mailLoaded; /*
                              * The number of mails that have been downloaded.
                              * This number helps the system avoid re-downloading previously downloaded mails
@@ -31,6 +32,7 @@ public class receiveHandler {
             this.password = password;
 
             socket = new Socket(mailServer, port);
+            socket.setSoTimeout(SOCKET_TIMEOUT);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
             mails = new ArrayList<>();
